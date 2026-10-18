@@ -1,0 +1,148 @@
+{
+  "name": "UPJ Chatbot - Neo4j + SumoPod",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "chat",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "node-webhook",
+      "name": "Webhook Chat",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [100, 300],
+      "webhookId": "upj-chat-webhook"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Ambil pesan dari request\nconst msg = $input.first().json.body.message || '';\nconst msgLow = msg.toLowerCase();\n\n// Tentukan query Cypher berdasarkan topik pertanyaan\nlet cypher = '';\n\nif (msgLow.includes('biaya') || msgLow.includes('ukt') || msgLow.includes('spp') || msgLow.includes('bayar') || msgLow.includes('harga') || msgLow.includes('kuliah') || msgLow.includes('daftar')) {\n  cypher = `\n    MATCH (p:ProgramStudi)\n    OPTIONAL MATCH (p)-[:HAS_TUITION_FEE]->(b:BiayaKuliah)\n    RETURN p.name AS prodi, p.akreditasi AS akreditasi,\n           b.spp AS spp, b.sks_kelas AS sks_kelas,\n           b.sks_praktik AS sks_praktik, b.total_semester_1 AS total_semester_1\n    ORDER BY p.name\n  `;\n} else if (msgLow.includes('beasiswa') || msgLow.includes('jaya 100') || msgLow.includes('gratis') || msgLow.includes('potongan') || msgLow.includes('diskon')) {\n  cypher = `\n    MATCH (u:University {code: 'UPJ'})-[:OFFERS_SCHOLARSHIP]->(bs:Beasiswa)\n    RETURN bs.nama AS nama_beasiswa, bs.syarat AS syarat\n    ORDER BY bs.nama\n  `;\n} else if (msgLow.includes('dosen') || msgLow.includes('pengajar') || msgLow.includes('professor') || msgLow.includes('prof') || msgLow.includes('dr.')) {\n  cypher = `\n    MATCH (l:Lecturer)-[:TEACHES_IN]->(p:ProgramStudi)\n    WHERE toLower(p.name) CONTAINS toLower('${msg.replace(/'/g,'')}') OR\n          toLower(p.code) CONTAINS toLower('${msg.replace(/'/g,'')}')\n    RETURN l.name AS dosen, l.role AS jabatan, l.email AS email, p.name AS prodi\n    LIMIT 15\n  `;\n} else if (msgLow.includes('beasiswa') || msgLow.includes('peminatan') || msgLow.includes('konsentrasi') || msgLow.includes('spesialisasi')) {\n  cypher = `\n    MATCH (p:ProgramStudi)-[:HAS_SPECIALIZATION]->(sp:Peminatan)\n    RETURN p.name AS prodi, collect(sp.name) AS peminatan, sp.waktu_pemilihan AS waktu_pemilihan\n    ORDER BY p.name\n  `;\n} else if (msgLow.includes('syarat') || msgLow.includes('buta warna') || msgLow.includes('masuk') || msgLow.includes('ipa') || msgLow.includes('portofolio')) {\n  cypher = `\n    MATCH (p:ProgramStudi)-[:HAS_REQUIREMENT]->(sk:SyaratKhusus)\n    RETURN p.name AS prodi, sk.syarat_khusus AS syarat_khusus, sk.latar_belakang AS latar_belakang\n    ORDER BY p.name\n  `;\n} else if (msgLow.includes('mata kuliah') || msgLow.includes('kurikulum') || msgLow.includes('semester') || msgLow.includes('matkul') || msgLow.includes('mk')) {\n  const semMatch = msgLow.match(/semester\\s*(\\d+)/);\n  const semNum = semMatch ? semMatch[1] : null;\n  if (semNum) {\n    cypher = `\n      MATCH (p:ProgramStudi)-[:OFFERS_COURSE]->(c:Course)\n      WHERE c.semester = 'Semester ${semNum}'\n      RETURN p.name AS prodi, c.name AS mata_kuliah, c.sks AS sks, c.semester AS semester\n      ORDER BY p.name, c.name\n      LIMIT 30\n    `;\n  } else {\n    cypher = `\n      MATCH (p:ProgramStudi)-[:OFFERS_COURSE]->(c:Course)\n      WITH p, c ORDER BY c.semester, c.name\n      RETURN p.name AS prodi, collect(DISTINCT c.semester + ': ' + c.name)[..15] AS sample_courses\n      ORDER BY p.name\n    `;\n  }\n} else if (msgLow.includes('faq') || msgLow.includes('ptn') || msgLow.includes('uang kembali') || msgLow.includes('pengembalian')) {\n  cypher = `\n    MATCH (u:University {code: 'UPJ'})-[:HAS_FAQ]->(f:FAQ)\n    RETURN f.pertanyaan AS pertanyaan, f.jawaban AS jawaban\n    LIMIT 10\n  `;\n} else if (msgLow.includes('fasilitas') || msgLow.includes('lab') || msgLow.includes('studio') || msgLow.includes('laboratorium')) {\n  cypher = `\n    MATCH (p:ProgramStudi)-[:HAS_FACILITY]->(f:Facility)\n    RETURN p.name AS prodi, collect(f.name) AS fasilitas\n    ORDER BY p.name\n  `;\n} else if (msgLow.includes('prodi') || msgLow.includes('program studi') || msgLow.includes('jurusan') || msgLow.includes('akreditasi')) {\n  cypher = `\n    MATCH (f:Faculty)-[:OFFERS_PROGRAM]->(p:ProgramStudi)\n    RETURN f.name AS fakultas, p.name AS prodi, p.code AS kode,\n           p.akreditasi AS akreditasi, p.degree AS gelar, p.duration AS durasi\n    ORDER BY f.name, p.name\n  `;\n} else if (msgLow.includes('jalur') || msgLow.includes('rapor') || msgLow.includes('tes') || msgLow.includes('usm') || msgLow.includes('prestasi') || msgLow.includes('pendaftaran')) {\n  cypher = `\n    MATCH (u:University {code: 'UPJ'})-[:OFFERS_SCHOLARSHIP]->(bs:Beasiswa)\n    WITH collect({nama: bs.nama, syarat: bs.syarat}) AS beasiswa\n    MATCH (p:ProgramStudi)-[:HAS_REQUIREMENT]->(sk:SyaratKhusus)\n    RETURN beasiswa,\n           collect({prodi: p.name, syarat: sk.syarat_khusus}) AS syarat_prodi\n  `;\n} else {\n  // Query umum - ambil overview\n  cypher = `\n    MATCH (u:University {code: 'UPJ'})\n    OPTIONAL MATCH (u)-[:HAS_FACULTY]->(f:Faculty)-[:OFFERS_PROGRAM]->(p:ProgramStudi)\n    OPTIONAL MATCH (u)-[:OFFERS_SCHOLARSHIP]->(bs:Beasiswa)\n    OPTIONAL MATCH (u)-[:HAS_FAQ]->(faq:FAQ)\n    RETURN u.name AS universitas, u.tagline AS tagline,\n           collect(DISTINCT p.name + ' (' + p.akreditasi + ')') AS program_studi,\n           collect(DISTINCT bs.nama)[..5] AS beasiswa,\n           collect(DISTINCT faq.pertanyaan)[..3] AS faq_sample\n    LIMIT 1\n  `;\n}\n\nreturn [{\n  json: {\n    message: msg,\n    cypher: cypher.trim()\n  }\n}];\n"
+      },
+      "id": "node-build-cypher",
+      "name": "Build Cypher Query",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [320, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://127.0.0.1:7474/db/neo4j/tx/commit",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "Basic bmVvNGo6cGFzc3dvcmQxMjM="
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"statements\": [\n    {\n      \"statement\": {{ JSON.stringify($json.cypher) }},\n      \"resultDataContents\": [\"row\", \"graph\"]\n    }\n  ]\n}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "node-neo4j-http",
+      "name": "Query Neo4j REST API",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [540, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Ambil data dari Neo4j response\nconst neo4jResponse = $input.first().json;\nconst message = $('Build Cypher Query').first().json.message;\n\nlet contextText = '';\n\ntry {\n  const results = neo4jResponse.results || [];\n  if (results.length > 0 && results[0].data && results[0].data.length > 0) {\n    const columns = results[0].columns || [];\n    const rows = results[0].data.map(d => {\n      const obj = {};\n      columns.forEach((col, i) => { obj[col] = d.row[i]; });\n      return obj;\n    });\n    contextText = JSON.stringify(rows, null, 2);\n  } else {\n    contextText = 'Tidak ada data spesifik ditemukan di Knowledge Graph.';\n  }\n} catch(e) {\n  contextText = 'Error membaca data: ' + e.message;\n}\n\nconst prompt = `Kamu adalah asisten informasi resmi Universitas Pembangunan Jaya (UPJ) yang membantu calon mahasiswa baru.\n\nData relevan dari Knowledge Graph UPJ:\n${contextText}\n\nPertanyaan:\n${message}\n\nInstruksi:\n- Jawab dengan ramah, informatif, dan terstruktur dalam Bahasa Indonesia\n- Gunakan data di atas sebagai referensi utama\n- Jika ada data biaya/beasiswa, tampilkan secara rapi dengan angka yang jelas\n- Gunakan bullet point atau numbering untuk daftar\n- Jika data tidak tersedia, sarankan menghubungi PMB UPJ di pmb.upj.ac.id\n- Jangan sebut \"Knowledge Graph\" atau \"Neo4j\" kepada pengguna`;\n\nreturn [{\n  json: {\n    message: message,\n    context: contextText,\n    prompt: prompt\n  }\n}];\n"
+      },
+      "id": "node-format-prompt",
+      "name": "Format Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [760, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.sumopod.com/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $vars.SUMOPOD_API_KEY }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"{{ $vars.SUMOPOD_MODEL || 'gpt-4o-mini' }}\",\n  \"temperature\": 0.4,\n  \"max_tokens\": 1000,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Kamu adalah asisten informasi resmi Universitas Pembangunan Jaya (UPJ). Jawab dengan ramah, rapi, dan informatif dalam Bahasa Indonesia.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": {{ JSON.stringify($json.prompt) }}\n    }\n  ]\n}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "node-sumopod-llm",
+      "name": "SumoPod LLM",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [980, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const llmResponse = $input.first().json;\nconst message = $('Format Prompt').first().json.message;\n\nlet responseText = 'Maaf, saya belum bisa menjawab pertanyaan tersebut. Silakan coba lagi atau hubungi PMB UPJ di pmb.upj.ac.id';\n\ntry {\n  if (llmResponse.choices && llmResponse.choices.length > 0) {\n    responseText = llmResponse.choices[0].message.content || responseText;\n  } else if (llmResponse.error) {\n    responseText = `Maaf, terjadi kendala pada layanan AI: ${llmResponse.error.message}. Silakan coba lagi.`;\n  }\n} catch(e) {\n  responseText = 'Terjadi kesalahan teknis. Silakan hubungi PMB UPJ di pmb.upj.ac.id';\n}\n\nreturn [{\n  json: {\n    response: responseText,\n    source: 'n8n_sumopod_neo4j'\n  }\n}];\n"
+      },
+      "id": "node-extract-response",
+      "name": "Extract LLM Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1200, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}",
+        "options": {}
+      },
+      "id": "node-respond",
+      "name": "Kirim ke Web",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1420, 300]
+    }
+  ],
+  "connections": {
+    "Webhook Chat": {
+      "main": [[{ "node": "Build Cypher Query", "type": "main", "index": 0 }]]
+    },
+    "Build Cypher Query": {
+      "main": [[{ "node": "Query Neo4j REST API", "type": "main", "index": 0 }]]
+    },
+    "Query Neo4j REST API": {
+      "main": [[{ "node": "Format Prompt", "type": "main", "index": 0 }]]
+    },
+    "Format Prompt": {
+      "main": [[{ "node": "SumoPod LLM", "type": "main", "index": 0 }]]
+    },
+    "SumoPod LLM": {
+      "main": [[{ "node": "Extract LLM Response", "type": "main", "index": 0 }]]
+    },
+    "Extract LLM Response": {
+      "main": [[{ "node": "Kirim ke Web", "type": "main", "index": 0 }]]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
