@@ -12,18 +12,24 @@
       "name": "Webhook Chat",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
-      "position": [100, 300],
+      "position": [
+        100,
+        300
+      ],
       "webhookId": "upj-chat-webhook"
     },
     {
       "parameters": {
-        "jsCode": "// Ambil pesan dari request\nconst msg = $input.first().json.body.message || '';\nconst msgLow = msg.toLowerCase();\n\n// Tentukan query Cypher berdasarkan topik pertanyaan\nlet cypher = '';\n\nif (msgLow.includes('biaya') || msgLow.includes('ukt') || msgLow.includes('spp') || msgLow.includes('bayar') || msgLow.includes('harga') || msgLow.includes('kuliah') || msgLow.includes('daftar')) {\n  cypher = `\n    MATCH (p:ProgramStudi)\n    OPTIONAL MATCH (p)-[:HAS_TUITION_FEE]->(b:BiayaKuliah)\n    RETURN p.name AS prodi, p.akreditasi AS akreditasi,\n           b.spp AS spp, b.sks_kelas AS sks_kelas,\n           b.sks_praktik AS sks_praktik, b.total_semester_1 AS total_semester_1\n    ORDER BY p.name\n  `;\n} else if (msgLow.includes('beasiswa') || msgLow.includes('jaya 100') || msgLow.includes('gratis') || msgLow.includes('potongan') || msgLow.includes('diskon')) {\n  cypher = `\n    MATCH (u:University {code: 'UPJ'})-[:OFFERS_SCHOLARSHIP]->(bs:Beasiswa)\n    RETURN bs.nama AS nama_beasiswa, bs.syarat AS syarat\n    ORDER BY bs.nama\n  `;\n} else if (msgLow.includes('dosen') || msgLow.includes('pengajar') || msgLow.includes('professor') || msgLow.includes('prof') || msgLow.includes('dr.')) {\n  cypher = `\n    MATCH (l:Lecturer)-[:TEACHES_IN]->(p:ProgramStudi)\n    WHERE toLower(p.name) CONTAINS toLower('${msg.replace(/'/g,'')}') OR\n          toLower(p.code) CONTAINS toLower('${msg.replace(/'/g,'')}')\n    RETURN l.name AS dosen, l.role AS jabatan, l.email AS email, p.name AS prodi\n    LIMIT 15\n  `;\n} else if (msgLow.includes('beasiswa') || msgLow.includes('peminatan') || msgLow.includes('konsentrasi') || msgLow.includes('spesialisasi')) {\n  cypher = `\n    MATCH (p:ProgramStudi)-[:HAS_SPECIALIZATION]->(sp:Peminatan)\n    RETURN p.name AS prodi, collect(sp.name) AS peminatan, sp.waktu_pemilihan AS waktu_pemilihan\n    ORDER BY p.name\n  `;\n} else if (msgLow.includes('syarat') || msgLow.includes('buta warna') || msgLow.includes('masuk') || msgLow.includes('ipa') || msgLow.includes('portofolio')) {\n  cypher = `\n    MATCH (p:ProgramStudi)-[:HAS_REQUIREMENT]->(sk:SyaratKhusus)\n    RETURN p.name AS prodi, sk.syarat_khusus AS syarat_khusus, sk.latar_belakang AS latar_belakang\n    ORDER BY p.name\n  `;\n} else if (msgLow.includes('mata kuliah') || msgLow.includes('kurikulum') || msgLow.includes('semester') || msgLow.includes('matkul') || msgLow.includes('mk')) {\n  const semMatch = msgLow.match(/semester\\s*(\\d+)/);\n  const semNum = semMatch ? semMatch[1] : null;\n  if (semNum) {\n    cypher = `\n      MATCH (p:ProgramStudi)-[:OFFERS_COURSE]->(c:Course)\n      WHERE c.semester = 'Semester ${semNum}'\n      RETURN p.name AS prodi, c.name AS mata_kuliah, c.sks AS sks, c.semester AS semester\n      ORDER BY p.name, c.name\n      LIMIT 30\n    `;\n  } else {\n    cypher = `\n      MATCH (p:ProgramStudi)-[:OFFERS_COURSE]->(c:Course)\n      WITH p, c ORDER BY c.semester, c.name\n      RETURN p.name AS prodi, collect(DISTINCT c.semester + ': ' + c.name)[..15] AS sample_courses\n      ORDER BY p.name\n    `;\n  }\n} else if (msgLow.includes('faq') || msgLow.includes('ptn') || msgLow.includes('uang kembali') || msgLow.includes('pengembalian')) {\n  cypher = `\n    MATCH (u:University {code: 'UPJ'})-[:HAS_FAQ]->(f:FAQ)\n    RETURN f.pertanyaan AS pertanyaan, f.jawaban AS jawaban\n    LIMIT 10\n  `;\n} else if (msgLow.includes('fasilitas') || msgLow.includes('lab') || msgLow.includes('studio') || msgLow.includes('laboratorium')) {\n  cypher = `\n    MATCH (p:ProgramStudi)-[:HAS_FACILITY]->(f:Facility)\n    RETURN p.name AS prodi, collect(f.name) AS fasilitas\n    ORDER BY p.name\n  `;\n} else if (msgLow.includes('prodi') || msgLow.includes('program studi') || msgLow.includes('jurusan') || msgLow.includes('akreditasi')) {\n  cypher = `\n    MATCH (f:Faculty)-[:OFFERS_PROGRAM]->(p:ProgramStudi)\n    RETURN f.name AS fakultas, p.name AS prodi, p.code AS kode,\n           p.akreditasi AS akreditasi, p.degree AS gelar, p.duration AS durasi\n    ORDER BY f.name, p.name\n  `;\n} else if (msgLow.includes('jalur') || msgLow.includes('rapor') || msgLow.includes('tes') || msgLow.includes('usm') || msgLow.includes('prestasi') || msgLow.includes('pendaftaran')) {\n  cypher = `\n    MATCH (u:University {code: 'UPJ'})-[:OFFERS_SCHOLARSHIP]->(bs:Beasiswa)\n    WITH collect({nama: bs.nama, syarat: bs.syarat}) AS beasiswa\n    MATCH (p:ProgramStudi)-[:HAS_REQUIREMENT]->(sk:SyaratKhusus)\n    RETURN beasiswa,\n           collect({prodi: p.name, syarat: sk.syarat_khusus}) AS syarat_prodi\n  `;\n} else {\n  // Query umum - ambil overview\n  cypher = `\n    MATCH (u:University {code: 'UPJ'})\n    OPTIONAL MATCH (u)-[:HAS_FACULTY]->(f:Faculty)-[:OFFERS_PROGRAM]->(p:ProgramStudi)\n    OPTIONAL MATCH (u)-[:OFFERS_SCHOLARSHIP]->(bs:Beasiswa)\n    OPTIONAL MATCH (u)-[:HAS_FAQ]->(faq:FAQ)\n    RETURN u.name AS universitas, u.tagline AS tagline,\n           collect(DISTINCT p.name + ' (' + p.akreditasi + ')') AS program_studi,\n           collect(DISTINCT bs.nama)[..5] AS beasiswa,\n           collect(DISTINCT faq.pertanyaan)[..3] AS faq_sample\n    LIMIT 1\n  `;\n}\n\nreturn [{\n  json: {\n    message: msg,\n    cypher: cypher.trim()\n  }\n}];\n"
+        "jsCode": "// Ambil pesan dari request\nconst msg = $input.first().json.body.message || '';\nconst msgLow = msg.toLowerCase();\n\n// Tentukan query Cypher berdasarkan topik pertanyaan\nlet cypher = '';\n\nif (msgLow.includes('tracer') || msgLow.includes('waktu tunggu') || msgLow.includes('cepat kerja') || msgLow.includes('multinasional') || msgLow.includes('kesesuaian') || msgLow.includes('lulusan kerja') || msgLow.includes('alumni kerja') || msgLow.includes('karir') || msgLow.includes('pekerjaan') || msgLow.includes('alumni')) {\n  const prodis = ['informatika', 'sistem informasi', 'arsitektur', 'teknik sipil', 'desain komunikasi visual', 'dkv', 'desain produk', 'akuntansi', 'manajemen', 'psikologi', 'ilmu komunikasi', 'komunikasi'];\n  const matchedProdi = prodis.find(p => msgLow.includes(p));\n  if (matchedProdi) {\n    cypher = `\n      MATCH (p:ProgramStudi)-[:HAS_TRACER_STUDY]->(ts:TracerStudy)\n      WHERE toLower(p.name) CONTAINS '${matchedProdi}' OR toLower(p.code) CONTAINS '${matchedProdi}'\n      OPTIONAL MATCH (p)-[:LEADS_TO_CAREER]->(car:CareerPath)\n      RETURN p.name AS prodi, ts.tahun AS tahun, ts.jumlah_lulusan AS lulusan,\n             ts.wt_kurang_6_bulan AS dapat_kerja_kurang_6_bln,\n             ts.persen_wt_kurang_6_bulan AS persen_cepat_kerja,\n             ts.persen_kesesuaian_selaras AS persen_kerja_sesuai_bidang,\n             ts.lingkup_nasional AS kerja_skala_nasional,\n             ts.lingkup_multinasional AS kerja_skala_multinasional,\n             collect(DISTINCT car.name)[..6] AS prospek_karir\n      ORDER BY ts.tahun DESC\n    `;\n  } else {\n    cypher = `\n      MATCH (p:ProgramStudi)-[:HAS_TRACER_STUDY]->(ts:TracerStudy {tahun: 2024})\n      RETURN p.name AS prodi, ts.tahun AS tahun, ts.jumlah_lulusan AS total_lulusan,\n             ts.wt_kurang_6_bulan AS dapat_kerja_kurang_6_bulan,\n             ts.persen_wt_kurang_6_bulan AS persen_cepat_kerja,\n             ts.persen_kesesuaian_selaras AS persen_sesuai_bidang,\n             ts.lingkup_multinasional AS kerja_multinasional\n      ORDER BY ts.persen_wt_kurang_6_bulan DESC\n    `;\n  }\n} else if (msgLow.includes('biaya') || msgLow.includes('ukt') || msgLow.includes('spp') || msgLow.includes('bayar') || msgLow.includes('harga') || msgLow.includes('kuliah') || msgLow.includes('daftar')) {\n  cypher = `\n    MATCH (p:ProgramStudi)\n    OPTIONAL MATCH (p)-[:HAS_TUITION_FEE]->(b:BiayaKuliah)\n    RETURN p.name AS prodi, p.akreditasi AS akreditasi,\n           b.spp AS spp, b.sks_kelas AS sks_kelas,\n           b.sks_praktik AS sks_praktik, b.total_semester_1 AS total_semester_1\n    ORDER BY p.name\n  `;\n} else if (msgLow.includes('beasiswa') || msgLow.includes('jaya 100') || msgLow.includes('gratis') || msgLow.includes('potongan') || msgLow.includes('diskon')) {\n  cypher = `\n    MATCH (u:University {code: 'UPJ'})-[:OFFERS_SCHOLARSHIP]->(bs:Beasiswa)\n    RETURN bs.nama AS nama_beasiswa, bs.syarat AS syarat\n    ORDER BY bs.nama\n  `;\n} else if (msgLow.includes('dosen') || msgLow.includes('pengajar') || msgLow.includes('professor') || msgLow.includes('prof') || msgLow.includes('dr.')) {\n  cypher = `\n    MATCH (l:Lecturer)-[:TEACHES_IN]->(p:ProgramStudi)\n    WHERE toLower(p.name) CONTAINS toLower('${msg.replace(/'/g,'')}') OR\n          toLower(p.code) CONTAINS toLower('${msg.replace(/'/g,'')}')\n    RETURN l.name AS dosen, l.role AS jabatan, l.email AS email, p.name AS prodi\n    LIMIT 15\n  `;\n} else if (msgLow.includes('peminatan') || msgLow.includes('konsentrasi') || msgLow.includes('spesialisasi')) {\n  cypher = `\n    MATCH (p:ProgramStudi)-[:HAS_SPECIALIZATION]->(sp:Peminatan)\n    RETURN p.name AS prodi, collect(sp.name) AS peminatan, sp.waktu_pemilihan AS waktu_pemilihan\n    ORDER BY p.name\n  `;\n} else if (msgLow.includes('syarat') || msgLow.includes('buta warna') || msgLow.includes('masuk') || msgLow.includes('ipa') || msgLow.includes('portofolio')) {\n  cypher = `\n    MATCH (p:ProgramStudi)-[:HAS_REQUIREMENT]->(sk:SyaratKhusus)\n    RETURN p.name AS prodi, sk.syarat_khusus AS syarat_khusus, sk.latar_belakang AS latar_belakang\n    ORDER BY p.name\n  `;\n} else if (msgLow.includes('mata kuliah') || msgLow.includes('kurikulum') || msgLow.includes('semester') || msgLow.includes('matkul') || msgLow.includes('mk')) {\n  const semMatch = msgLow.match(/semester\\s*(\\d+)/);\n  const semNum = semMatch ? semMatch[1] : null;\n  if (semNum) {\n    cypher = `\n      MATCH (p:ProgramStudi)-[:OFFERS_COURSE]->(c:Course)\n      WHERE c.semester = 'Semester ${semNum}'\n      RETURN p.name AS prodi, c.name AS mata_kuliah, c.sks AS sks, c.semester AS semester\n      ORDER BY p.name, c.name\n      LIMIT 30\n    `;\n  } else {\n    cypher = `\n      MATCH (p:ProgramStudi)-[:OFFERS_COURSE]->(c:Course)\n      WITH p, c ORDER BY c.semester, c.name\n      RETURN p.name AS prodi, collect(DISTINCT c.semester + ': ' + c.name)[..15] AS sample_courses\n      ORDER BY p.name\n    `;\n  }\n} else if (msgLow.includes('faq') || msgLow.includes('ptn') || msgLow.includes('uang kembali') || msgLow.includes('pengembalian')) {\n  cypher = `\n    MATCH (u:University {code: 'UPJ'})-[:HAS_FAQ]->(f:FAQ)\n    RETURN f.pertanyaan AS pertanyaan, f.jawaban AS jawaban\n    LIMIT 10\n  `;\n} else if (msgLow.includes('fasilitas') || msgLow.includes('lab') || msgLow.includes('studio') || msgLow.includes('laboratorium')) {\n  cypher = `\n    MATCH (p:ProgramStudi)-[:HAS_FACILITY]->(f:Facility)\n    RETURN p.name AS prodi, collect(f.name) AS fasilitas\n    ORDER BY p.name\n  `;\n} else if (msgLow.includes('prodi') || msgLow.includes('program studi') || msgLow.includes('jurusan') || msgLow.includes('akreditasi')) {\n  cypher = `\n    MATCH (f:Faculty)-[:OFFERS_PROGRAM]->(p:ProgramStudi)\n    RETURN f.name AS fakultas, p.name AS prodi, p.code AS kode,\n           p.akreditasi AS akreditasi, p.degree AS gelar, p.duration AS durasi\n    ORDER BY f.name, p.name\n  `;\n} else if (msgLow.includes('jalur') || msgLow.includes('rapor') || msgLow.includes('tes') || msgLow.includes('usm') || msgLow.includes('prestasi') || msgLow.includes('pendaftaran')) {\n  cypher = `\n    MATCH (u:University {code: 'UPJ'})-[:OFFERS_SCHOLARSHIP]->(bs:Beasiswa)\n    WITH collect({nama: bs.nama, syarat: bs.syarat}) AS beasiswa\n    MATCH (p:ProgramStudi)-[:HAS_REQUIREMENT]->(sk:SyaratKhusus)\n    RETURN beasiswa,\n           collect({prodi: p.name, syarat: sk.syarat_khusus}) AS syarat_prodi\n  `;\n} else {\n  // Query umum - ambil overview\n  cypher = `\n    MATCH (u:University {code: 'UPJ'})\n    OPTIONAL MATCH (u)-[:HAS_FACULTY]->(f:Faculty)-[:OFFERS_PROGRAM]->(p:ProgramStudi)\n    OPTIONAL MATCH (u)-[:OFFERS_SCHOLARSHIP]->(bs:Beasiswa)\n    OPTIONAL MATCH (u)-[:HAS_FAQ]->(faq:FAQ)\n    RETURN u.name AS universitas, u.tagline AS tagline,\n           collect(DISTINCT p.name + ' (' + p.akreditasi + ')') AS program_studi,\n           collect(DISTINCT bs.nama)[..5] AS beasiswa,\n           collect(DISTINCT faq.pertanyaan)[..3] AS faq_sample\n    LIMIT 1\n  `;\n}\n\nreturn [{\n  json: {\n    message: msg,\n    cypher: cypher.trim()\n  }\n}];\n"
       },
       "id": "node-build-cypher",
       "name": "Build Cypher Query",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [320, 300]
+      "position": [
+        320,
+        300
+      ]
     },
     {
       "parameters": {
@@ -57,7 +63,10 @@
       "name": "Query Neo4j REST API",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [540, 300]
+      "position": [
+        540,
+        300
+      ]
     },
     {
       "parameters": {
@@ -67,7 +76,10 @@
       "name": "Format Prompt",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [760, 300]
+      "position": [
+        760,
+        300
+      ]
     },
     {
       "parameters": {
@@ -97,7 +109,10 @@
       "name": "SumoPod LLM",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
-      "position": [980, 300]
+      "position": [
+        980,
+        300
+      ]
     },
     {
       "parameters": {
@@ -107,7 +122,10 @@
       "name": "Extract LLM Response",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
-      "position": [1200, 300]
+      "position": [
+        1200,
+        300
+      ]
     },
     {
       "parameters": {
@@ -119,27 +137,78 @@
       "name": "Kirim ke Web",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1.1,
-      "position": [1420, 300]
+      "position": [
+        1420,
+        300
+      ]
     }
   ],
   "connections": {
     "Webhook Chat": {
-      "main": [[{ "node": "Build Cypher Query", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Build Cypher Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Build Cypher Query": {
-      "main": [[{ "node": "Query Neo4j REST API", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Query Neo4j REST API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Query Neo4j REST API": {
-      "main": [[{ "node": "Format Prompt", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Format Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Format Prompt": {
-      "main": [[{ "node": "SumoPod LLM", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "SumoPod LLM",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "SumoPod LLM": {
-      "main": [[{ "node": "Extract LLM Response", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Extract LLM Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
     "Extract LLM Response": {
-      "main": [[{ "node": "Kirim ke Web", "type": "main", "index": 0 }]]
+      "main": [
+        [
+          {
+            "node": "Kirim ke Web",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
   "settings": {

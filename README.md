@@ -36,6 +36,9 @@ Sistem chatbot berbasis **Knowledge Graph (Neo4j)** dan otomatisasi alur kerja (
 - **`(:Facility)`**: Laboratorium dan Fasilitas Belajar
 - **`(:Alumni)`**: Data Alumni & Testimonial
 - **`(:WebPage)`**: Halaman Web hasil scraping untuk pencarian Graph RAG
+- **`(:TracerStudy)`**: 30 Laporan Tracer Study per Program Studi (2022-2024: waktu tunggu kerja, kesesuaian bidang, dan lingkup industri)
+- **`(:TracerSummary)`**: 3 Agregasi Tahunan Tracer Study skala Universitas UPJ
+- **`(:LingkupKerja)`**: Klasifikasi tingkat tempat kerja (Multinasional/Internasional, Nasional, Lokal)
 
 ---
 
@@ -97,3 +100,6 @@ File alur kerja n8n telah disediakan di [n8n_chatbot_workflow.json](file:///d:/t
 - *"Siapa kaprodi Informatika dan apa emailnya?"*
 - *"Ada berapa program studi di UPJ?"*
 - *"Fasilitas apa saja yang ada di Teknik Sipil?"*
+- *"Berapa lama rata-rata waktu tunggu lulusan Informatika mendapatkan kerja?"*
+- *"Berapa persen lulusan Sistem Informasi yang bekerja di perusahaan multinasional?"*
+- *"Bagaimana tren tracer study dan tingkat kesesuaian kerja lulusan UPJ dari 2022 sampai 2024?"*
