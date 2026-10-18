@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tanya UPJ – Asisten Informasi Penerimaan Mahasiswa Baru</title>
+    <link rel="icon" type="image/webp" href="{{ url_for('static', filename='Logo-upj.webp') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -59,26 +60,17 @@
         .brand {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            gap: 0.85rem;
             text-decoration: none;
             color: inherit;
         }
 
-        .brand-logo-wrap {
-            width: 36px;
-            height: 36px;
-            background: var(--upj-red);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
-
-        .brand-logo-wrap svg {
-            width: 20px;
-            height: 20px;
-            fill: white;
+        .brand-logo-img {
+            height: 38px;
+            max-width: 130px;
+            width: auto;
+            object-fit: contain;
+            display: block;
         }
 
         .brand-name {
@@ -249,7 +241,19 @@
             justify-content: center;
             padding: 2rem;
             text-align: center;
-            gap: 1.5rem;
+            gap: 1.25rem;
+        }
+
+        .hero-logo-wrap {
+            margin-bottom: -0.25rem;
+        }
+
+        .hero-logo-img {
+            height: 64px;
+            max-width: 220px;
+            width: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 4px 16px rgba(0,0,0,0.06));
         }
 
         .hero-badge {
@@ -361,8 +365,8 @@
         }
 
         .msg-avatar {
-            width: 32px;
-            height: 32px;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -371,13 +375,20 @@
             font-weight: 700;
             flex-shrink: 0;
             margin-top: 2px;
+            overflow: hidden;
         }
 
         .msg-row.bot .msg-avatar {
-            background: var(--upj-red-pale);
-            color: var(--upj-red);
-            border: 1.5px solid rgba(192,39,45,0.2);
-            font-size: 0.85rem;
+            background: #ffffff;
+            border: 1.5px solid rgba(192,39,45,0.25);
+            padding: 3px;
+        }
+
+        .msg-avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
         }
 
         .msg-row.user .msg-avatar {
@@ -545,12 +556,8 @@
 <!-- ── HEADER ─────────────────────────────────── -->
 <header>
     <div class="brand">
-        <!-- UPJ Shield icon -->
-        <div class="brand-logo-wrap">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2L3 6v6c0 5.25 3.75 10.15 9 11.25C17.25 22.15 21 17.25 21 12V6L12 2z"/>
-            </svg>
-        </div>
+        <img src="{{ url_for('static', filename='Logo-upj.webp') }}" alt="Logo Universitas Pembangunan Jaya" class="brand-logo-img">
+        <span class="brand-sep"></span>
         <span class="brand-name">Tanya UPJ</span>
         <span class="brand-sep"></span>
         <span class="brand-tagline">Info PMB &amp; Akademik</span>
@@ -575,6 +582,9 @@
                 </button>
                 <button class="topic-btn" onclick="sendPrompt('Bagaimana cara mendaftar ke UPJ? Apa saja jalur masuknya?')">
                     <span class="topic-icon">📋</span> Jalur Pendaftaran
+                </button>
+                <button class="topic-btn" onclick="sendPrompt('Bagaimana hasil tracer study dan prospek karir lulusan UPJ?')">
+                    <span class="topic-icon">📊</span> Tracer Study &amp; Karir
                 </button>
                 <button class="topic-btn" onclick="sendPrompt('Apa saja peminatan di prodi Informatika?')">
                     <span class="topic-icon">🎯</span> Peminatan / Konsentrasi
@@ -638,10 +648,13 @@
 
         <!-- Welcome hero -->
         <div class="welcome-hero" id="welcome-hero">
-            <div class="hero-badge">✦ Asisten Informasi UPJ</div>
+            <div class="hero-logo-wrap">
+                <img src="{{ url_for('static', filename='Logo-upj.webp') }}" alt="Universitas Pembangunan Jaya" class="hero-logo-img">
+            </div>
+            <div class="hero-badge">✦ Asisten Informasi Resmi UPJ</div>
             <h1 class="hero-title">Mau tanya apa seputar <span>UPJ</span>?</h1>
             <p class="hero-desc">
-                Dari biaya kuliah, beasiswa, jalur masuk, mata kuliah, dosen, hingga fasilitas kampus — tanyakan saja, saya siap bantu.
+                Dari biaya kuliah, beasiswa, jalur masuk, mata kuliah, tracer study, hingga prospek karir — tanyakan saja, saya siap bantu.
             </p>
             <div class="starter-cards">
                 <button class="starter-card" onclick="sendPrompt('Berapa biaya kuliah di prodi Informatika beserta uang pangkalnya?')">
@@ -784,7 +797,15 @@
 
         const avatar = document.createElement('div');
         avatar.className = 'msg-avatar';
-        avatar.textContent = isUser ? 'Anda' : '🏛';
+        if (isUser) {
+            avatar.textContent = 'Anda';
+        } else {
+            const img = document.createElement('img');
+            img.src = '/static/Logo-upj.webp';
+            img.alt = 'UPJ';
+            img.className = 'msg-avatar-img';
+            avatar.appendChild(img);
+        }
 
         const col = document.createElement('div');
         col.className = 'msg-content';
@@ -820,7 +841,7 @@
         row.className = 'msg-row bot';
         row.id = id;
         row.innerHTML = `
-            <div class="msg-avatar">🏛</div>
+            <div class="msg-avatar"><img src="/static/Logo-upj.webp" alt="UPJ" class="msg-avatar-img" /></div>
             <div class="msg-content">
                 <div class="msg-sender">Asisten UPJ</div>
                 <div class="msg-bubble" style="padding: 0.75rem 1.1rem;">
