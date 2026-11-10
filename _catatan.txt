@@ -1,0 +1,340 @@
+=== PAGE 1 ===
+CATATAN PEMBIMBING TA  /  CHANDRA NUR AVISENA
+REVISI 3  |  04.11.2026
+Dokumen evaluasi akademik - bukan surat penerimaan jurnal
+Halaman 1
+LEMBAR ARAHAN DOSEN PEMBIMBING
+CATATAN REVISI TUGAS AKHIR
+Review manuskrip publikasi jurnal, perbandingan revisi, dan audit ketentuan eJESET | 4 November 2026
+Mahasiswa
+Chandra Nur Avisena (Caca)
+Bahan diperiksa
+Revisi 3.docx | 7 halaman pada hasil render Word (dapat berbeda menurut aplikasi)
+Judul penelitian
+Pengembangan Asisten Pemasaran Kampus Cerdas Menggunakan Arsitektur GraphRAG Terintegrasi
+n8n Studi Kasus Universitas Pembangunan Jaya
+Target jurnal
+Electronic Journal of Education, Social Economics and Technology (eJESET), SINTA 3
+Status
+REVISI MAYOR - BELUM LAYAK SUBMIT
+Penilaian umum. Revisi 3 menunjukkan kemajuan pada pembedaan kueri SQL dengan pertanyaan relasional,
+penulisan peran Flask-n8n-Neo4j, rencana 60 pertanyaan uji, dan perhatian terhadap privasi. Namun, naskah
+belum mempunyai bukti implementasi yang dapat diperiksa, hasil eksperimen komparatif, abstrak penelitian, dan
+kesimpulan. Persyaratan formal eJESET juga belum terpenuhi, khususnya bahasa Inggris, minimal 30 pustaka, dan
+80% artikel jurnal. Kesalahan atribusi dua referensi tahun 2026 perlu diperbaiki sebelum digunakan untuk
+merumuskan gap penelitian.
+A. Kesesuaian dengan persyaratan resmi eJESET
+Audit mengacu pada Author Guidelines dan Editorial Policies yang tersedia di laman resmi jurnal, diakses 4 November 2026
+[J1-J3]. Penilaian ini bukan keputusan editorial jurnal.
+Komponen
+Ketentuan resmi
+Temuan pada Revisi 3
+Status
+Bahasa naskah
+Wajib bahasa Inggris
+Bahasa Indonesia
+TIDAK SESUAI
+Panjang artikel
+6-12 halaman
+Sekitar 7 halaman hasil render
+SEMENTARA SESUAI
+Judul
+Maks. 20 kata; tanpa
+akronim/singkatan
+15 kata; memuat GraphRAG dan n8n
+REVISI
+Abstrak
+200-250 kata; tujuan, metode,
+hasil, kesimpulan
+Teks petunjuk template
+TIDAK SESUAI
+Kata kunci
+Daftar keywords (template: 5)
+Masih keyword 1...5
+TIDAK SESUAI
+Struktur
+IMRAD; pendahuluan, metode,
+hasil-bahasan, kesimpulan
+Heading sudah ada, isi belum lengkap
+BELUM
+Referensi
+Min. 30; min. 80% artikel jurnal;
+APA + DOI/URL
+14 entri, sekitar 9 jurnal (64%); 2 studi tidak
+masuk pustaka
+TIDAK SESUAI
+Originalitas
+Similarity kurang dari 20%
+Laporan kemiripan tidak tersedia
+BELUM DIVERIFIKASI
+Format unggah
+Word memakai template resmi
+File .docx dengan layout eJESET, tetapi sisa
+template ada
+SEBAGIAN
+Dokumen etik
+Persetujuan penulis; deklarasi
+konflik; etik bila relevan
+Belum tampak pada naskah
+PERLU CEK
+Catatan penting: panduan daring menyebut abstrak 200-250 kata, sedangkan teks petunjuk pada template di naskah
+memuat rentang 150-250 dan 150-200 kata. Untuk submission, gunakan persyaratan 200-250 kata pada Author Guidelines
+resmi, dan bila berbeda dari file template terbaru mintakan konfirmasi editor [J1].
+
+=== PAGE 2 ===
+CATATAN PEMBIMBING TA  /  CHANDRA NUR AVISENA
+REVISI 3  |  04.11.2026
+Dokumen evaluasi akademik - bukan surat penerimaan jurnal
+Halaman 2
+APC: kebijakan resmi tertanggal 10 Oktober 2026 menyebut submission/review gratis dan APC Rp1.500.000 untuk penulis
+seluruhnya dari Indonesia setelah diterima [J2-J3]. Halaman checklist submission masih memuat redaksi seolah seluruh proses
+gratis; rujuk kebijakan APC khusus dan konfirmasi melalui kanal editor resmi sebelum transaksi.
+B. Ringkasan perkembangan dibanding revisi 22 Oktober 2026
+Aspek
+Status
+Catatan
+SQL vs GraphRAG
+Membaik
+Kini SQL dinyatakan cocok untuk agregasi, sedangkan potensi graf menjadi
+hipotesis. Namun kebutuhan relasi lintas sumber belum didukung data
+sumber.
+Arsitektur
+Sebagian
+Peran Flask, n8n, Neo4j, GPT-4o-mini dan tujuh node chat ditulis; diagram
+arsitektur, alur ETL, dan bukti konfigurasi belum ada.
+Profil dataset
+Sebagian
+Periode 2022-2024 dan 10 prodi tetap disebut, tetapi jumlah baris/responden,
+variabel, sumber, izin dan kualitas data belum ditunjukkan.
+Rencana uji
+Membaik
+Enam klaster masing-masing 10 butir sudah disebut. Daftar 60 pertanyaan,
+ground truth, rubrik, hasil dan baseline belum tersedia.
+Privasi
+Membaik terbatas
+Ada narasi de-identifikasi dan ambang kelompok kecil, tetapi nilai ambang dan
+implementasi kontrol belum dijelaskan.
+Penelitian terdahulu
+Masalah baru
+Dua studi baru (Bozdemir-Bilgin; Amin) masuk tabel, tetapi hasil keduanya
+tertukar dan bibliografinya belum dicantumkan.
+Hasil dan kesimpulan
+Belum
+Results hanya mengulang workflow serta desain uji; conclusion masih lorem
+ipsum dari template.
+C. Catatan revisi substansi, metode, dan hasil
+01. Buktikan masalah aktual dan sumber data UPJ [MAJOR]
+Lokasi: Pendahuluan, hlm. 1-2; Metode 2.1
+Masalah: Masih disebut 10 prodi, 2022-2024, ribuan rekapitulasi tanpa profil tabel, jumlah individu/responden, tingkat
+kelengkapan, atau bukti kesulitan calon pengguna.
+Revisi yg diminta: Lampirkan ringkasan dataset yang disahkan pengelola (periode, jumlah baris, responden valid,
+kolom, missing values, akses/izin) serta minimal 2-3 bukti observasi atau kebutuhan pengguna.
+02. Pastikan kebutuhan lintas sumber benar-benar dapat dilayani [MAJOR]
+Lokasi: Pendahuluan hlm. 2; Metode 2.1
+Masalah: 
+Contoh 
+relasi 
+kompetensi 
+mata 
+kuliah 
+dengan 
+sebaran 
+industri 
+alumni 
+mengandaikan 
+data
+kurikulum/kompetensi dan keterkaitan alumni yang belum dijelaskan tersedia atau valid. Istilah korelasi juga tidak
+sama dengan relasi graf.
+Revisi yg diminta: Petakan sumber tiap node dan edge; nyatakan relasi inferensial versus terverifikasi. Gunakan
+istilah asosiasi/penelusuran relasi jika tidak ada uji statistik korelasi.
+03. Perjelas definisi GraphRAG yang dipakai [MAJOR]
+Lokasi: Pendahuluan hlm. 2-3; Metode 2.1 poin 4-5
+Masalah: Alur query tampak berbasis router kata kunci -> Cypher -> Neo4j -> konteks LLM. Ini belum cukup
+menjelaskan bentuk retrieval graf, multi-hop traversal, dan apa pembeda dari chatbot berbasis query graf biasa.
+Revisi yg diminta: Tegaskan apakah merupakan knowledge-graph-grounded RAG (desain sendiri) atau implementasi
+Microsoft GraphRAG. Sertakan graph schema, Cypher, strategi pemilihan subgraf, path traversal, keluaran bukti, dan
+contoh jawaban bertaut sumber.
+
+=== PAGE 3 ===
+CATATAN PEMBIMBING TA  /  CHANDRA NUR AVISENA
+REVISI 3  |  04.11.2026
+Dokumen evaluasi akademik - bukan surat penerimaan jurnal
+Halaman 3
+04. Pisahkan alur pemuatan data dari alur pertanyaan [MAJOR]
+Lokasi: Pendahuluan hlm. 2; Metode 2.1 poin 5
+Masalah: Pendahuluan menjanjikan n8n sebagai ETL, pembersihan terjadwal, dan sinkronisasi node-edge, tetapi
+daftar tujuh node hanya memuat pipeline inferensi chat.
+Revisi yg diminta: Buat dua workflow berbeda: (a) ingestion/ETL/validasi/sinkronisasi graf; (b) request
+chat/retrieval/generasi. Sertakan trigger, jadwal, error handling, bukti run, dan pembaruan data.
+05. Klarifikasi status implementasi aktual [MAJOR]
+Lokasi: Metode 2.1 poin 5; Hasil 3.1
+Masalah: Frasa "diimplementasikan" dan "diwujudkan" sudah dipakai, tetapi bagian hasil tidak mempunyai screenshot
+workflow n8n, screenshot aplikasi, sampel data graf, log, keluaran endpoint, maupun cuplikan Cypher.
+Revisi yg diminta: Tampilkan artefak yang benar-benar berjalan: diagram sistem, tangkapan layar n8n, antarmuka,
+Neo4j, contoh query-request-response, bukti akses ke data resmi, dan log terpilih. Bila belum jadi, gunakan redaksi
+rancangan, bukan hasil.
+06. Bedakan pembahasan hasil dari rancangan pengujian [MAJOR]
+Lokasi: Hasil 3.1 dan 3.2
+Masalah: Bagian 3.2 baru merinci pembagian 60 pertanyaan. Itu rancangan evaluasi, bukan hasil percobaan. Bagian
+3.1 mengulang metode tanpa metrik atau bukti.
+Revisi yg diminta: Pindahkan protokol pengujian ke Methods. Isi Results dengan tabel nilai aktual per skenario,
+pembanding, analisis salah jawab, statistik dasar, dan pembahasan keterbatasan. Jangan menambah angka hasil
+sebelum diuji.
+07. Wujudkan 60 pertanyaan uji dan ground truth [MAJOR]
+Lokasi: Pendahuluan hlm. 3; Metode 2.1 poin 6; Hasil 3.2
+Masalah: Naskah menyatakan 60 butir dalam enam klaster x 10, tetapi daftar pertanyaan, sumber label, keluaran
+yang diharapkan, penilai dan aturan validasi tidak tersedia.
+Revisi yg diminta: Siapkan lampiran atau tabel dataset uji: ID, klaster, prompt, data sumber, expected answer, SQL
+pembanding jika relevan, rubric, label keterjawaban dan catatan privasi. Pastikan tiap klaster benar-benar didukung
+data.
+08. Susun baseline eksperimen yang adil [MAJOR]
+Lokasi: Pendahuluan hlm. 3; Metode poin 6
+Masalah: GraphRAG akan dibanding RAG vektor, tetapi tidak ada spesifikasi embedding, chunking, retrieval top-k,
+model, temperature, dan kontrol sumber. SQL disebut acuan namun bukan sistem tanya-jawab yang setara.
+Revisi yg diminta: Bandingkan GraphRAG vs vector RAG dengan korpus, LLM, prompt, batas token, pertanyaan dan
+perangkat yang sama. Pakai SQL terverifikasi sebagai oracle numerik, bukan klaim baseline UX yang sepadan.
+09. Definisikan tiap metrik dan prosedur analisis [MAJOR]
+Lokasi: Pendahuluan hlm. 3; Hasil 3.2
+Masalah: Faithfulness dicampur dengan factual accuracy, sementara relevansi, ketepatan numerik, atribusi dan
+latensi belum punya definisi operasional. Penanganan pertanyaan tanpa data tidak dinilai secara terpisah.
+Revisi yg diminta: Tetapkan rumus/aturan skor (mis. exact numeric match, groundedness, answer correctness,
+completeness, citation accuracy, abstention correctness, latency p50/p95). Cantumkan evaluasi per kategori dan siapa
+evaluatornya.
+10. Periksa risiko keamanan dan privasi secara operasional [MAJOR]
+Lokasi: Metode 2.1 poin 3, 5; Hasil 3.2 kategori 6
+Masalah: De-identifikasi dan penyaringan berbasis kata kunci disebut tanpa pengujian. Cypher dinamis berisiko
+apabila string input diproses tidak aman; pengiriman konteks data ke API LLM eksternal belum dibatasi.
+Revisi yg diminta: Tentukan kebijakan data agregat, nilai ambang kelompok kecil, role akses, parameterisasi Cypher,
+rate limit dan proteksi API key; uji prompt injection dan pertanyaan identitas alumni. Jelaskan dasar izin pengolahan
+data.
+
+=== PAGE 4 ===
+CATATAN PEMBIMBING TA  /  CHANDRA NUR AVISENA
+REVISI 3  |  04.11.2026
+Dokumen evaluasi akademik - bukan surat penerimaan jurnal
+Halaman 4
+11. Jangan mengandalkan temperature untuk menjamin jawaban akurat [MAJOR]
+Lokasi: Metode node LLM; Hasil 3.1
+Masalah: Pernyataan bahwa temperature 0,4 membatasi keluaran agar ketat mengikuti graf tidak otomatis benar.
+Tidak ada validasi jawaban terhadap nilai sumber atau bukti atribusi.
+Revisi yg diminta: Tambahkan evidence payload, aturan no-answer saat data tidak ada, validasi angka deterministik,
+penautan sumber (ID dokumen/node/kueri), serta uji hallucination dan fallback dengan data uji nyata.
+12. Pertajam kontribusi terhadap studi yang paling dekat [MAJOR]
+Lokasi: Pendahuluan research gap; tabel studi no. 6
+Masalah: Stepanov et al. (2026) sudah membuat asisten penerimaan mahasiswa dengan GraphRAG. Perbedaan hanya
+menggunakan n8n atau lokasi UPJ belum cukup menjadi novelty ilmiah.
+Revisi yg diminta: Bangun matriks eksplisit membandingkan artefak, sumber tracer+akademik, relasi data, evaluasi
+kueri numerik dan multi-hop, kebaruan praktis serta batasan hasil; batasi klaim agar sesuai kontribusi yang
+benar-benar diuji.
+D. Catatan revisi sitasi, bahasa, dan template
+13. Betulkan dua penelitian yang hasilnya tertukar [MAJOR]
+Lokasi: Tabel penelitian terdahulu, hlm. 4, baris 4 dan 9
+Masalah: Bozdemir & Bilgin (2026) membahas schema retrieval/Text-to-SQL pada 15 basis data: F1 0,79 -> 0,88 dan
+execution accuracy 0,70 -> 0,78. Temuan 167.050 SEC EDGAR dan 16/20 vs 10/20 vs 3/20 berasal dari Amin (2026),
+bukan Bozdemir.
+Revisi yg diminta: Revisi isi tabel, kutip artikel aslinya [R1-R2], cantumkan kedua referensi lengkap. Jangan
+mengubah identitas atau menyilangkan hasil suatu studi dengan judul studi lain.
+14. Lengkapi referensi untuk memenuhi aturan eJESET [MAJOR]
+Lokasi: References, hlm. akhir
+Masalah: Daftar referensi berisi 14 entri (sekitar 9 jurnal = 64%), kurang dari min. 30 dan 80% jurnal. Bozdemir &
+Bilgin dan Amin disebut di tabel tetapi belum ada di daftar pustaka; Benita dan Kulkarni ada di daftar pustaka tetapi
+tidak lagi dibahas.
+Revisi yg diminta: Tambah minimal 16 referensi relevan, utamakan >24 artikel jurnal dari total 30, jurnal terbaru dan
+DOI valid. Terapkan APA konsisten melalui Mendeley/Zotero. Verifikasi satu-satu bahwa tiap rujukan mendukung klaim.
+15. Penuhi kewajiban bahasa Inggris dan abstrak [MAJOR]
+Lokasi: Judul, abstrak, seluruh naskah
+Masalah: Naskah mayoritas bahasa Indonesia; abstrak dan keywords masih bawaan template, kesimpulan juga masih
+dummy. eJESET hanya memproses manuskrip bahasa Inggris yang sesuai format.
+Revisi yg diminta: Setelah hasil uji tersedia, tulis abstract 200-250 kata berisi masalah, metode, dataset, angka hasil,
+komparasi dan simpulan; isi keywords; terjemahkan seluruh artikel dengan proofreading akademik.
+16. Bersihkan seluruh placeholder dan rapikan identitas penulis [MAJOR]
+Lokasi: Header, judul, caption Gambar, conclusion, footer
+Masalah: Masih ada "Please use this template", Vol. x, DOI placeholder, "First Author’s Last name et al", jenis artikel
+ganda, "Gambar =", petunjuk Methods, dan Lorem ipsum. Nama penulis mencantumkan gelar akademik dalam byline.
+Revisi yg diminta: Buang semua konten contoh. Pilih Research Article; perbaiki nomor-caption gambar; tulis nama
+tanpa gelar (kecuali diminta jurnal), verifikasi afiliasi dan corresponding author. Jangan mengarang volume/DOI yang
+belum ditetapkan.
+
+=== PAGE 5 ===
+CATATAN PEMBIMBING TA  /  CHANDRA NUR AVISENA
+REVISI 3  |  04.11.2026
+Dokumen evaluasi akademik - bukan surat penerimaan jurnal
+Halaman 5
+17. Perbaiki diagram dan tabel agar layak publikasi [MAJOR]
+Lokasi: Metode Gambar 1 dan tabel studi
+Masalah: Diagram tujuh kotak hanya memuat alur generik identifikasi masalah -> kesimpulan dan tidak menunjukkan
+komponen yang ditekankan judul. Tabel penelitian terdahulu sangat padat dan beberapa kolom/teks berimpit pada
+render Word.
+Revisi yg diminta: Beri caption "Figure 1" serta sitasi bila adaptasi; buat arsitektur n8n-Flask-Neo4j-LLM dan diagram
+ETL yang terbaca; sederhanakan tabel studi dan gunakan narasi sintesis untuk keterbatasan/gap.
+18. Tegaskan cakupan fungsi "pemasaran" [MAJOR]
+Lokasi: Judul; pendahuluan; uji klaster 1
+Masalah: Fitur informasi umum (biaya, dosen, beasiswa, fasilitas) memperluas lingkup di luar tracer study dan belum
+ada metrik keberhasilan pemasaran. Pengembangan asisten informasi tidak identik dengan peningkatan pendaftaran.
+Revisi yg diminta: Tetapkan apakah fokus pada informasi karier alumni untuk calon mahasiswa atau chatbot
+informasi kampus umum. Jika tidak menguji efektivitas pemasaran, gunakan judul yang lebih operasional dan jangan
+klaim konversi marketing.
+19. Lengkapi pernyataan etika dan administrasi submission [MINOR]
+Lokasi: Bagian akhir naskah dan OJS
+Masalah: Dokumen belum menunjukkan approval semua penulis, conflict-of-interest declaration, keterangan
+pemakaian data institusi, atau ethical clearance/exemption bila protokol melibatkan data individual/survei. Status
+similarity belum bisa dinilai.
+Revisi yg diminta: Cek mekanisme persetujuan pemilik data, izin institusi dan kebutuhan kajian etik; tambahkan
+disclosure yang sesuai kebijakan jurnal, cek similarity secara sah, dan pastikan naskah original serta belum dikirim ke
+jurnal lain.
+E. Catatan bahasa dan indikasi kalimat generik/AI-template
+Indikasi sedang. Tidak dapat dipakai untuk menyimpulkan penggunaan AI. Masalah utamanya adalah
+pengulangan klaim metodologis tanpa bukti, frasa seperti "sistematis", "komprehensif", "berbasis data", dan
+presentasi rencana seolah implementasi sudah teruji. Contoh konkret: "dilaksanakan" dan "diimplementasikan"
+perlu disesuaikan bila bukti tidak tersedia; pernyataan temperature 0,4 menjaga faktualitas harus diganti
+prosedur validasi; istilah "korelasi" tidak boleh digunakan untuk hubungan node tanpa pengukuran statistik.
+F. Prioritas pekerjaan sebelum bimbingan berikutnya
+Urutan
+Luaran yang wajib dibawa
+P1 - data dan bukti
+Sertakan profil tracer study terverifikasi, sumber akademik, status izin data dan observasi masalah
+nyata.
+P1 - koreksi ilmiah
+Perbaiki Bozdemir/Amin, matriks kontribusi terhadap Stepanov, dan konsistensi GraphRAG vs query
+graf.
+P1 - artefak
+Bawa screenshot/ekspor workflow n8n (ETL + chat), graph schema Neo4j, contoh Cypher, demo
+respons Flask dan log.
+P1 - evaluasi
+Bawa 60 butir uji beserta ground truth, baseline RAG, aturan metrik, tabel hasil nyata dan analisis
+salah jawab.
+P2 - keamanan
+Jelaskan data agregat, batas minimum kelompok, kontrol kebocoran data dan keamanan Cypher/API.
+P2 - submission
+Lengkapi >=30 referensi (>=80% jurnal), versi full-English, abstrak berbasis hasil, kesimpulan, dan
+bersihkan semua placeholder.
+
+=== PAGE 6 ===
+CATATAN PEMBIMBING TA  /  CHANDRA NUR AVISENA
+REVISI 3  |  04.11.2026
+Dokumen evaluasi akademik - bukan surat penerimaan jurnal
+Halaman 6
+G. Keputusan pembimbing sementara
+Status: MEMBAIK, TETAPI PERLU REVISI MAYOR ULANG SEBELUM SUBMISSION. Secara topik masih dapat
+dilanjutkan. Penguatan argumen SQL-vs-GraphRAG dan perencanaan pengujian sudah terlihat, tetapi belum ada
+bukti yang memungkinkan pembaca menyimpulkan kinerja sistem atau menguji kontribusinya. Prioritaskan data,
+realisasi implementasi, baseline, dan hasil eksperimen; terjemahan dan tata letak final dikerjakan setelah
+substansi stabil.
+Catatan ini menilai hanya dokumen Revisi 3.docx yang diserahkan. Keberadaan kode, repositori, dataset asli,
+screenshot/rekaman demo, hasil pengujian, dan izin akses data di luar dokumen belum dapat diverifikasi; penilaian dapat
+diperbarui setelah bukti tersebut diberikan.
+H. Sumber pedoman jurnal dan verifikasi rujukan
+[J1] eJESET, Author Guidelines / Submissions (bahasa, panjang, abstrak, referensi, IMRAD, similarity).
+https://ejeset.saintispub.com/ejeset/about/submissions
+[J2] eJESET, Editorial Policies, termasuk APC dan conflict-of-interest; halaman menyatakan pembaruan 10 Okt 2026.
+https://ejeset.saintispub.com/ejeset/about/editorialPolicies
+[J3] eJESET, Instruksi Pembayaran Publication Fee (APC).
+https://www.ejeset.saintispub.com/ejeset/pages/view/payment
+[J4] SINTA, profil Electronic Journal of Education, Social Economics and Technology (SINTA 3).
+https://sinta.kemdiktisaintek.go.id/journals/profile/13474
+[R1] Bozdemir & Bilgin (2026), Applied Sciences, 16(2), 586.
+https://doi.org/10.3390/app16020586
+[R2] Amin (27 Oktober 2026), Beyond Similarity Search: Knowledge Graph Metadata Enrichment..., arXiv preprint.
+https://arxiv.org/abs/2610.37728
+Dokumen sumber internal: Revisi 3.docx (naskah yang diunggah untuk review), catatan evaluasi pendahuluan 22 Oktober 2026.
+Pemeriksaan sumber daring: 4 November 2026.
