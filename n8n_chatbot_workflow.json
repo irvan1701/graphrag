@@ -1,217 +1,260 @@
-{
-  "name": "UPJ Chatbot - Neo4j + SumoPod",
-  "nodes": [
-    {
-      "parameters": {
-        "httpMethod": "POST",
-        "path": "chat",
-        "responseMode": "responseNode",
-        "options": {}
+[
+  {
+    "updatedAt": "2026-11-10T16:58:07.947Z",
+    "createdAt": "2026-11-10T16:58:07.947Z",
+    "id": "hn2LZm7utSuYNsM2",
+    "name": "UPJ Chatbot - Neo4j + SumoPod",
+    "description": null,
+    "active": true,
+    "isArchived": false,
+    "nodes": [
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "chat",
+          "responseMode": "responseNode",
+          "options": {}
+        },
+        "id": "node-webhook",
+        "name": "Webhook Chat",
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2,
+        "position": [
+          100,
+          300
+        ],
+        "webhookId": "upj-chat-webhook"
       },
-      "id": "node-webhook",
-      "name": "Webhook Chat",
-      "type": "n8n-nodes-base.webhook",
-      "typeVersion": 2,
-      "position": [
-        100,
-        300
-      ],
-      "webhookId": "upj-chat-webhook"
-    },
-    {
-      "parameters": {
-        "jsCode": "// Ambil pesan dari request dan normalisasi\nconst msg = ($input.first().json.body && $input.first().json.body.message) ? String($input.first().json.body.message) : '';\nconst rawLow = msg.toLowerCase().trim();\n\n// Normalisasi typo & singkatan umum calon mahasiswa\nlet norm = rawLow\n  .replace(/\\bbya\\b/g, 'biaya')\n  .replace(/\\bkulah\\b/g, 'kuliah')\n  .replace(/\\bsmster\\b/g, 'semester')\n  .replace(/\\bsmt\\b/g, 'semester')\n  .replace(/\\bbrp\\b/g, 'berapa')\n  .replace(/\\bdpt\\b|\\bdapet\\b/g, 'dapat')\n  .replace(/\\bcepet\\b/g, 'cepat')\n  .replace(/\\bkrj\\b/g, 'kerja')\n  .replace(/\\bmatkul\\b|\\bmk\\b/g, 'mata kuliah')\n  .replace(/\\bkaprodi\\b/g, 'ketua prodi')\n  .replace(/\\bjurusan\\b/g, 'program studi');\n\n// -----------------------------------------------------------------------------\n// 1. SECURITY, PRIVACY & OUT-OF-SCOPE GUARD (DETERMINISTIC PRE-CHECK)\n// -----------------------------------------------------------------------------\nlet privacy_action = 'NONE';\nlet refusal_message = '';\n\nconst hasCypherInjection =\n  /\\b(detach\\s+delete|drop\\s+(constraint|index|database)|call\\s+(db|dbms|apoc)|load\\s+csv|union\\s+select)\\b/i.test(rawLow) ||\n  /\\b(match|create|merge)\\s*\\(/i.test(rawLow) ||\n  /\\bwith\\s+\\w+\\s+match\\b/i.test(rawLow) ||\n  /('\\s*or\\s+1\\s*=\\s*1|;\\s*(match|create|merge|delete|set)\\b|--\\s*$)/i.test(rawLow);\n\nconst hasPIIRequest =\n  /\\b(gaji|penghasilan|nomor\\s*hp|no\\s*hp|telepon\\s*pribadi|alamat\\s*rumah|nim\\b|identitas\\s*alumni|mahasiswa\\s*yang\\s*tidak\\s*lulus)\\b/i.test(norm) ||\n  /\\b(?:daftar\\s+)?nama(?:\\s+\\w+){0,2}\\s+(alumni|lulusan|mahasiswa|responden)\\b/i.test(norm) ||\n  /\\b(siapa\\s+(?:saja\\s+)?nama|siapa\\s+saja)\\b[^\\n]{0,45}\\b(alumni|lulusan|mahasiswa|responden|1\\s*orang)\\b/i.test(norm);\n\nconst hasDifferencing =\n  /\\b(selisih|dikurangi|minus|kecuali|selain)\\b/i.test(norm) &&\n  /\\b(tracer|responden|lulusan|dp|desain\\s*produk|total)\\b/i.test(norm);\n\nconst hasExternalUni =\n  /\\b(universitas\\s+indonesia|itb|ugm|ipb|its|undip|unpad|binus|trisakti|untar|uph)\\b/i.test(norm) ||\n  (/\\bui\\b/i.test(norm) && !/\\bupj\\b/i.test(norm) && /\\bkedokteran|biaya|kuliah\\b/i.test(norm));\n\nconst hasNonUpjProgram =\n  /\\b(kedokteran|teknik\\s+nuklir|farmasi|ilmu\\s+hukum|keperawatan|peternakan|pertanian|astronomi|antropologi)\\b/i.test(norm);\n\n// -----------------------------------------------------------------------------\n// 2. ENTITY & SLOT EXTRACTION (PRODI, FAKULTAS, TAHUN, SEMESTER)\n// -----------------------------------------------------------------------------\nconst prodiAliases = [\n  { code: 'INF', pats: [/\\binformatika\\b/, /\\binf\\b/] },\n  { code: 'SIF', pats: [/\\bsistem\\s+informasi\\b/, /\\bsif\\b/, /\\bsi\\b/] },\n  { code: 'AKT', pats: [/\\bakuntansi\\b/, /\\bakt\\b/] },\n  { code: 'MNJ', pats: [/\\bmanajemen\\b/, /\\bmnj\\b/] },\n  { code: 'PSI', pats: [/\\bpsikologi\\b/, /\\bpsi\\b/] },\n  { code: 'KOM', pats: [/\\bilmu\\s+komunikasi\\b/, /\\bkomunikasi\\b/, /\\bkom\\b/] },\n  { code: 'DKV', pats: [/\\bdesain\\s+komunikasi\\s+visual\\b/, /\\bdkv\\b/] },\n  { code: 'DP',  pats: [/\\bdesain\\s+produk\\b/, /\\bdp\\b/] },\n  { code: 'TSP', pats: [/\\bteknik\\s+sipil\\b/, /\\bsipil\\b/, /\\btsp\\b/] },\n  { code: 'ARS', pats: [/\\barsitektur\\b/, /\\bars\\b/] },\n  { code: 'PPAR', pats: [/\\bppar\\b/, /\\bprofesi\\s+arsitek\\b/] }\n];\n\nconst prodi_codes = [];\nfor (const pa of prodiAliases) {\n  if (pa.pats.some(rx => rx.test(norm))) {\n    prodi_codes.push(pa.code);\n  }\n}\n\nconst faculty_codes = [];\nif (/\\bftd\\b|fakultas\\s+teknologi\\s+dan\\s+desain/.test(norm)) faculty_codes.push('FTD');\nif (/\\bfhb\\b|fakultas\\s+humaniora\\s+dan\\s+bisnis/.test(norm)) faculty_codes.push('FHB');\n\nconst yearMatches = norm.match(/\\b(2022|2023|2024)\\b/g) || [];\nlet years = [...new Set(yearMatches.map(y => parseInt(y, 10)))];\nif (years.length === 2 && years.includes(2022) && years.includes(2024)) {\n  years = [2022, 2023, 2024];\n}\n\nconst semMatch = norm.match(/semester\\s*(\\d+)/);\nconst semStr = semMatch ? `Semester ${semMatch[1]}` : '';\n\n// Small-cell suppression check for DP 2022 (n=2 < 5) or explicit n=1 sub-cell queries\nconst asksSmallCohortDP2022 =\n  prodi_codes.includes('DP') && years.includes(2022) && /\\b(tracer|waktu\\s*tunggu|kesesuaian|detail|persen|alumni|kerja|responden)\\b/.test(norm);\nconst asksSmallSubCell =\n  /\\b(n\\s*=\\s*[12]|1\\s*orang\\s*alumni|2\\s*orang|sangat\\s*erat\\s*\\(n=1\\)|multinasional\\s*\\(n=1\\))\\b/i.test(norm);\n\nif (hasCypherInjection) {\n  privacy_action = 'REFUSE_SECURITY';\n  refusal_message = 'Permintaan ditolak karena mengandung pola sintaks kueri yang tidak diizinkan. Silakan ajukan pertanyaan informasi akademik UPJ dalam bahasa alami.';\n} else if (hasPIIRequest) {\n  privacy_action = 'REFUSE_PII';\n  refusal_message = 'Maaf, demi perlindungan privasi dan data pribadi, sistem tidak menyimpan maupun menampilkan data identitas personal, gaji individu alumni, NIM, nomor telepon pribadi, atau alamat rumah. Informasi publik yang tersedia hanya berupa rekapitulasi agregat program studi dan email institusional resmi (@upj.ac.id).';\n} else if (hasDifferencing) {\n  privacy_action = 'REFUSE_DIFFERENCING';\n  refusal_message = 'Maaf, permintaan pengurangan atau isolasi selisih antar-kelompok untuk mengidentifikasi kelompok responden berukuran kecil (n < 5) ditolak sesuai kebijakan pengendalian pengungkapan data (disclosure control).';\n} else if (hasExternalUni || (hasNonUpjProgram && prodi_codes.length === 0)) {\n  privacy_action = 'REFUSE_OOS';\n  refusal_message = 'Maaf, pertanyaan tersebut berada di luar cakupan informasi akademik dan tracer study Universitas Pembangunan Jaya (UPJ). Silakan tanyakan seputar 11 program studi, biaya, beasiswa, kurikulum, atau capaian lulusan UPJ.';\n} else if (asksSmallCohortDP2022 || asksSmallSubCell) {\n  privacy_action = 'SUPPRESS_SMALL_CELL';\n  refusal_message = 'Sesuai kebijakan ambang privasi kelompok kecil (n >= 5), rincian persentase kohor atau sub-sel dengan jumlah responden kurang dari 5 orang (seperti kohor Desain Produk 2022 dengan n=2 atau sub-sel tunggal n=1) ditekan untuk mencegah risiko re-identifikasi. Data hanya dapat disajikan dalam bentuk agregasi tingkat fakultas (FTD) atau tingkat universitas (UPJ).';\n}\n\n// -----------------------------------------------------------------------------\n// 3. INTENT CLASSIFICATION (SPECIFIC-FIRST, NO COLLISIONS)\n// -----------------------------------------------------------------------------\nconst hasCourse =\n  /\\b(mata\\s+kuliah|kurikulum|sks|jadwal\\s+kuliah|perkuliahan)\\b/.test(norm) ||\n  (!!semStr && !/\\b(biaya|spp|total|uang)\\b[^\\n]*semester\\s*1\\b|\\bsemester\\s*1\\b[^\\n]*\\b(biaya|spp)\\b/.test(norm));\nconst hasTracer =\n  /\\b(tracer|waktu\\s+tunggu|cepat\\s+kerja|dapat\\s+kerja|capaian\\s+kerja|kerja\\s+selaras(?:nya)?|kerja\\s+nasional(?:nya)?|kesesuaian|selaras(?:nya)?|linearitas|multinasional(?:nya)?|nasional(?:nya)?|lokal(?:nya)?|berwirausaha|lulusan(?:nya)?|responden|terlacak|keterlacakan|alumni|karir(?:nya)?|pekerjaan|prospek)\\b/.test(norm);\nconst hasTuition = /\\b(biaya(?:nya)?|ukt|spp(?:nya)?|bayar|harga|potongan|uang\\s+masuk|uang\\s+pangkal|cicil)\\b/.test(norm);\nconst hasScholarship = /\\b(beasiswa(?:nya)?|jaya\\s*100|kip|asak|influencer)\\b/.test(norm);\nconst hasLecturer = /\\b(dosen(?:nya)?|pengajar|ketua\\s+prodi|head\\s+of\\s+department|koordinator|pimpinan|prof)\\b|\\bdr\\./.test(norm);\nconst hasSpecialization = /\\b(peminatan(?:nya)?|konsentrasi(?:nya)?|spesialisasi)\\b/.test(norm);\nconst hasRequirement = /\\b(syarat(?:nya)?|buta\\s+warna|portofolio|latar\\s+belakang|ipa|smk)\\b/.test(norm);\nconst hasFacility = /\\b(fasilitas(?:nya)?|lab(?:nya)?|laboratorium(?:nya)?|studio)\\b/.test(norm);\nconst hasFAQ = /\\b(faq|ptn|uang\\s+kembali|pengembalian|jaminan\\s+kerja|keunikan)\\b/.test(norm);\nconst hasProdiMetadata = /\\b(akreditasi(?:nya)?|gelar(?:nya)?|durasi|masa\\s+studi|fakultas(?:nya)?)\\b/.test(norm);\nconst hasProdiInfo = hasProdiMetadata || /\\b(program\\s+studi|prodi)\\b/.test(norm);\nconst hasJalur = /\\b(jalur(?:nya)?|rapor|usm|pendaftaran|cara\\s+mendaftar|mendaftarnya)\\b/.test(norm);\n\nconst isMultiIntent =\n  (hasTracer && (hasCourse || hasFacility || hasRequirement || hasSpecialization || hasTuition || hasLecturer || hasProdiMetadata)) ||\n  (hasCourse && (hasLecturer || hasFacility || hasSpecialization || hasTuition)) ||\n  (hasTuition && (hasScholarship || hasLecturer || hasRequirement || hasFacility || hasSpecialization)) ||\n  (hasFacility && hasRequirement) ||\n  (hasRequirement && hasSpecialization);\n\nlet intent = 'fallback';\nlet cypher = '';\nlet params = {};\nlet is_ambiguous = false;\n\nif (privacy_action === 'REFUSE_SECURITY' || privacy_action === 'REFUSE_PII' || privacy_action === 'REFUSE_DIFFERENCING' || privacy_action === 'REFUSE_OOS') {\n  intent = privacy_action.toLowerCase();\n  cypher = 'RETURN $action AS privacy_action LIMIT 0';\n  params = { action: privacy_action };\n} else if (privacy_action === 'SUPPRESS_SMALL_CELL') {\n  intent = 'privacy_suppress_aggregate';\n  cypher = `\n    MATCH (u:University {code: 'UPJ'})-[:HAS_TRACER_SUMMARY]->(s:TracerSummary)\n    WHERE size($years) = 0 OR s.tahun IN $years\n    RETURN s.id AS source_id, s.tahun AS tahun,\n           s.total_lulusan AS upj_total_lulusan,\n           s.total_terlacak AS upj_total_terlacak,\n           s.persen_wt_kurang_6_bulan AS upj_persen_cepat_kerja,\n           s.persen_kesesuaian_selaras AS upj_persen_selaras,\n           'SUPPRESSED_COHORT_OR_SUBCELL_LT_5' AS privacy_note\n    ORDER BY s.tahun\n  `;\n  params = { years: years.length ? years : [2022, 2023, 2024] };\n} else if (isMultiIntent) {\n  // Multi-intent & Multi-hop parameterized traversal anchored at University->Faculty->ProgramStudi\n  intent = 'multi_hop_combined';\n  cypher = `\n    MATCH (u:University {code: 'UPJ'})-[:HAS_FACULTY]->(f:Faculty)-[:OFFERS_PROGRAM]->(p:ProgramStudi)\n    WHERE (size($prodi_codes) = 0 OR p.code IN $prodi_codes)\n      AND (size($faculty_codes) = 0 OR f.code IN $faculty_codes)\n    OPTIONAL MATCH (p)-[:HAS_TUITION_FEE]->(bk:BiayaKuliah)\n    RETURN u.name AS universitas,\n           p.code AS kode, p.name AS prodi, f.code AS fakultas_kode, f.name AS fakultas,\n           p.degree AS gelar, p.akreditasi AS akreditasi,\n           bk.total_semester_1 AS biaya_sem_1,\n           bk.spp AS spp,\n           [(p)-[:HAS_REQUIREMENT]->(req:SyaratKhusus) | {syarat_khusus: req.syarat_khusus, latar_belakang: req.latar_belakang}] AS syarat_khusus,\n           [(p)-[:HAS_SPECIALIZATION]->(sp:Peminatan) | sp.name] AS peminatan,\n           [(p)-[:HAS_FACILITY]->(fac:Facility) | fac.name][..10] AS fasilitas,\n           [(p)-[:OFFERS_COURSE]->(c:Course) WHERE $sem = '' OR c.semester = $sem | c.semester + ': ' + c.name][..20] AS mata_kuliah,\n           [(l:Lecturer)-[:TEACHES_IN]->(p) | l.name + ' (' + l.role + ' - ' + coalesce(l.email, '') + ')'][..8] AS dosen,\n           [(p)-[:LEADS_TO_CAREER]->(car:CareerPath) | car.name][..10] AS prospek_karir,\n           [(u)-[:OFFERS_SCHOLARSHIP]->(bs:Beasiswa) | {nama: bs.nama, syarat: bs.syarat}] AS beasiswa,\n           [(p)-[:HAS_TRACER_STUDY]->(ts:TracerStudy) WHERE (size($years) = 0 OR ts.tahun IN $years) AND ts.jumlah_terlacak >= 5 | {\n             id: ts.id,\n             tahun: ts.tahun,\n             lulusan: ts.jumlah_lulusan,\n             terlacak: ts.jumlah_terlacak,\n             wt_lt_6: CASE WHEN ts.wt_kurang_6_bulan < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.wt_kurang_6_bulan END,\n             persen_cepat_kerja: CASE WHEN ts.wt_kurang_6_bulan < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.persen_wt_kurang_6_bulan END,\n             selaras: CASE WHEN ts.kesesuaian_selaras < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.kesesuaian_selaras END,\n             persen_selaras: CASE WHEN ts.kesesuaian_selaras < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.persen_kesesuaian_selaras END,\n             lingkup_nasional: CASE WHEN ts.lingkup_nasional < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.lingkup_nasional END,\n             persen_nasional: CASE WHEN ts.lingkup_nasional < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.persen_lingkup_nasional END,\n             lingkup_multinasional: CASE WHEN ts.lingkup_multinasional < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.lingkup_multinasional END,\n             persen_multinasional: CASE WHEN ts.lingkup_multinasional < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.persen_lingkup_multinasional END\n           }] AS tracer_outcomes\n    ORDER BY p.code\n  `;\n  params = { prodi_codes, faculty_codes, years, sem: semStr };\n} else if (hasCourse) {\n  intent = 'course_curriculum';\n  cypher = `\n    MATCH (p:ProgramStudi)-[:OFFERS_COURSE]->(c:Course)\n    WHERE (size($prodi_codes) = 0 OR p.code IN $prodi_codes)\n      AND ($sem = '' OR c.semester = $sem)\n    RETURN p.code AS kode, p.name AS prodi, count(DISTINCT c) AS total_mata_kuliah,\n           collect(DISTINCT c.semester + ': ' + c.name + ' (' + toString(c.sks) + ' SKS)')[..25] AS daftar_mata_kuliah\n    ORDER BY p.code\n  `;\n  params = { prodi_codes, sem: semStr };\n} else if (hasLecturer) {\n  intent = 'lecturer_profile';\n  cypher = `\n    MATCH (l:Lecturer)-[:TEACHES_IN]->(p:ProgramStudi)\n    WHERE size($prodi_codes) = 0 OR p.code IN $prodi_codes\n    RETURN p.code AS kode, p.name AS prodi, l.name AS dosen, l.role AS jabatan, l.email AS email\n    ORDER BY p.code, l.name\n    LIMIT 30\n  `;\n  params = { prodi_codes };\n} else if (hasTracer) {\n  if (faculty_codes.length > 0 && prodi_codes.length === 0) {\n    intent = 'tracer_faculty_comparison';\n    cypher = `\n      MATCH (f:Faculty)-[:OFFERS_PROGRAM]->(p:ProgramStudi)-[:HAS_TRACER_STUDY]->(ts:TracerStudy)\n      WHERE f.code IN $faculty_codes AND (size($years) = 0 OR ts.tahun IN $years)\n      RETURN f.code AS fakultas_kode, f.name AS fakultas, ts.tahun AS tahun,\n             sum(ts.jumlah_lulusan) AS total_lulusan,\n             sum(ts.jumlah_terlacak) AS total_terlacak,\n             sum(ts.wt_kurang_6_bulan) AS total_wt_lt_6,\n             sum(ts.kesesuaian_selaras) AS total_selaras\n      ORDER BY ts.tahun, f.code\n    `;\n    params = { faculty_codes, years: years.length ? years : [2024] };\n  } else if (prodi_codes.length > 0) {\n    intent = 'tracer_prodi';\n    cypher = `\n      MATCH (p:ProgramStudi)\n      WHERE p.code IN $prodi_codes\n      OPTIONAL MATCH (p)-[:HAS_TRACER_STUDY]->(ts:TracerStudy)\n        WHERE size($years) = 0 OR ts.tahun IN $years\n      WITH p, ts\n      ORDER BY p.code, ts.tahun\n      RETURN p.code AS kode, p.name AS prodi, p.degree AS gelar,\n             [(p)-[:LEADS_TO_CAREER]->(car:CareerPath) | car.name][..6] AS prospek_karir,\n             collect(CASE\n               WHEN ts IS NULL THEN null\n               WHEN ts.jumlah_terlacak < 5 THEN {id: ts.id, tahun: ts.tahun, status: 'SUPPRESSED_COHORT_LT_5'}\n               ELSE {\n                 id: ts.id,\n                 tahun: ts.tahun,\n                 lulusan: ts.jumlah_lulusan,\n                 terlacak: ts.jumlah_terlacak,\n                 persen_terlacak: ts.persentase_terlacak,\n                 wt_lt_6: CASE WHEN ts.wt_kurang_6_bulan < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.wt_kurang_6_bulan END,\n                 persen_wt_lt_6: CASE WHEN ts.wt_kurang_6_bulan < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.persen_wt_kurang_6_bulan END,\n                 kesesuaian_selaras: CASE WHEN ts.kesesuaian_selaras < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.kesesuaian_selaras END,\n                 persen_selaras: CASE WHEN ts.kesesuaian_selaras < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.persen_kesesuaian_selaras END,\n                 lingkup_lokal: 'EMPTY_IN_SOURCE_DATA (0)',\n                 lingkup_nasional: CASE WHEN ts.lingkup_nasional < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.lingkup_nasional END,\n                 persen_nasional: CASE WHEN ts.lingkup_nasional < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.persen_lingkup_nasional END,\n                 lingkup_multinasional: CASE WHEN ts.lingkup_multinasional < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.lingkup_multinasional END,\n                 persen_multinasional: CASE WHEN ts.lingkup_multinasional < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.persen_lingkup_multinasional END,\n                 followed_by_tahun: [(ts)-[:FOLLOWED_BY]->(nxt:TracerStudy) | nxt.tahun],\n                 sectors: [(ts)-[abs:ABSORBED_BY_SECTOR]->(lk:LingkupKerja) | {\n                   kategori: lk.kategori,\n                   jumlah: CASE WHEN abs.jumlah < 5 THEN 'SUPPRESSED_LT_5' ELSE abs.jumlah END\n                 }]\n               }\n             END) AS tracer_records\n      ORDER BY p.code\n    `;\n    params = { prodi_codes, years };\n  } else {\n    intent = 'tracer_university_summary';\n    if (/\\bprospek\\s*kerjanya\\s*bagus\\b/.test(norm)) {\n      is_ambiguous = true;\n    }\n    cypher = `\n      MATCH (u:University {code: 'UPJ'})-[:HAS_TRACER_SUMMARY]->(s:TracerSummary)\n      WHERE size($years) = 0 OR s.tahun IN $years\n      RETURN s.id AS summary_id, s.tahun AS tahun,\n             s.total_lulusan AS total_lulusan,\n             s.total_terlacak AS total_terlacak,\n             s.persentase_terlacak AS persen_terlacak,\n             s.total_wt_kurang_6_bulan AS total_wt_lt_6,\n             s.persen_wt_kurang_6_bulan AS persen_wt_lt_6,\n             s.total_kesesuaian_selaras AS total_selaras,\n             s.persen_kesesuaian_selaras AS persen_selaras,\n             s.total_lingkup_nasional AS total_nasional,\n             s.persen_lingkup_nasional AS persen_nasional,\n             s.total_lingkup_multinasional AS total_multinasional,\n             s.persen_lingkup_multinasional AS persen_multinasional,\n             'Column_13_Lokal_Empty_In_Source_0' AS catatan_lokal,\n             [(s)-[:INCLUDES_PRODI_TRACER]->(ts:TracerStudy) WHERE ts.jumlah_terlacak >= 5 | {\n               prodi: ts.prodi_code,\n               terlacak: ts.jumlah_terlacak,\n               wt_lt_6: CASE WHEN ts.wt_kurang_6_bulan < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.wt_kurang_6_bulan END,\n               persen_wt_lt_6: CASE WHEN ts.wt_kurang_6_bulan < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.persen_wt_kurang_6_bulan END,\n               selaras: CASE WHEN ts.kesesuaian_selaras < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.kesesuaian_selaras END,\n               persen_selaras: CASE WHEN ts.kesesuaian_selaras < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.persen_kesesuaian_selaras END,\n               nasional: CASE WHEN ts.lingkup_nasional < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.lingkup_nasional END,\n               multinasional: CASE WHEN ts.lingkup_multinasional < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.lingkup_multinasional END\n             }] AS prodi_breakdown\n      ORDER BY s.tahun\n    `;\n    params = { years };\n  }\n} else if (hasTuition) {\n  if (/\\b(potongan|rapor|uang\\s+masuk)\\b/.test(norm)) {\n    intent = 'tuition_discount';\n    cypher = `\n      MATCH (u:University {code: 'UPJ'})\n      RETURN u.potongan_uang_masuk_json AS potongan_uang_masuk,\n             u.jalur_pendaftaran_json AS jalur_pendaftaran\n    `;\n    params = {};\n  } else {\n    intent = 'tuition_fee';\n    if (prodi_codes.length === 0) is_ambiguous = true;\n    cypher = `\n      MATCH (p:ProgramStudi)-[:HAS_TUITION_FEE]->(b:BiayaKuliah)\n      WHERE size($prodi_codes) = 0 OR p.code IN $prodi_codes\n      RETURN p.code AS kode, p.name AS prodi, b.spp AS spp,\n             b.sks_kelas AS sks_kelas, b.sks_praktik AS sks_praktik,\n             b.total_semester_1 AS total_semester_1\n      ORDER BY b.total_semester_1 ASC\n    `;\n    params = { prodi_codes };\n  }\n} else if (hasScholarship) {\n  intent = 'scholarship';\n  cypher = `\n    MATCH (u:University {code: 'UPJ'})-[:OFFERS_SCHOLARSHIP]->(bs:Beasiswa)\n    RETURN bs.nama AS nama_beasiswa, bs.syarat AS syarat\n    ORDER BY bs.nama\n  `;\n  params = {};\n} else if (hasSpecialization) {\n  intent = 'specialization';\n  cypher = `\n    MATCH (p:ProgramStudi)-[:HAS_SPECIALIZATION]->(sp:Peminatan)\n    WHERE size($prodi_codes) = 0 OR p.code IN $prodi_codes\n    RETURN p.code AS kode, p.name AS prodi,\n           collect(DISTINCT sp.name) AS peminatan,\n           collect(DISTINCT sp.waktu_pemilihan)[0] AS waktu_pemilihan\n    ORDER BY p.code\n  `;\n  params = { prodi_codes };\n} else if (hasRequirement) {\n  intent = 'special_requirement';\n  cypher = `\n    MATCH (p:ProgramStudi)-[:HAS_REQUIREMENT]->(sk:SyaratKhusus)\n    WHERE size($prodi_codes) = 0 OR p.code IN $prodi_codes\n    RETURN p.code AS kode, p.name AS prodi, sk.syarat_khusus AS syarat_khusus, sk.latar_belakang AS latar_belakang\n    ORDER BY p.code\n  `;\n  params = { prodi_codes };\n} else if (hasFAQ) {\n  intent = 'faq';\n  cypher = `\n    MATCH (u:University {code: 'UPJ'})-[:HAS_FAQ]->(f:FAQ)\n    RETURN f.pertanyaan AS pertanyaan, f.jawaban AS jawaban\n  `;\n  params = {};\n} else if (hasFacility) {\n  intent = 'facility';\n  cypher = `\n    MATCH (p:ProgramStudi)-[:HAS_FACILITY]->(f:Facility)\n    WHERE size($prodi_codes) = 0 OR p.code IN $prodi_codes\n    RETURN p.code AS kode, p.name AS prodi, collect(DISTINCT f.name) AS fasilitas\n    ORDER BY p.code\n  `;\n  params = { prodi_codes };\n} else if (hasProdiInfo) {\n  intent = 'program_studi_info';\n  cypher = `\n    MATCH (f:Faculty)-[:OFFERS_PROGRAM]->(p:ProgramStudi)\n    WHERE size($prodi_codes) = 0 OR p.code IN $prodi_codes\n    RETURN f.code AS fakultas_kode, f.name AS fakultas, p.code AS kode, p.name AS prodi,\n           p.akreditasi AS akreditasi, p.degree AS gelar, p.duration AS durasi\n    ORDER BY f.code, p.code\n  `;\n  params = { prodi_codes };\n} else if (hasJalur) {\n  intent = 'admission_path';\n  cypher = `\n    MATCH (u:University {code: 'UPJ'})\n    OPTIONAL MATCH (u)-[:OFFERS_SCHOLARSHIP]->(bs:Beasiswa)\n    RETURN u.pmb_website AS website_pmb,\n           u.jalur_pendaftaran_json AS jalur_pendaftaran,\n           u.potongan_uang_masuk_json AS potongan_uang_masuk,\n           collect(DISTINCT {nama: bs.nama, syarat: bs.syarat}) AS beasiswa\n  `;\n  params = {};\n} else {\n  intent = 'fallback_overview';\n  is_ambiguous = true;\n  cypher = `\n    MATCH (u:University {code: 'UPJ'})\n    OPTIONAL MATCH (u)-[:HAS_FACULTY]->(f:Faculty)-[:OFFERS_PROGRAM]->(p:ProgramStudi)\n    OPTIONAL MATCH (u)-[:HAS_TRACER_SUMMARY]->(s:TracerSummary {tahun: 2024})\n    RETURN u.name AS universitas, u.pmb_website AS website_pmb,\n           collect(DISTINCT p.code + ' - ' + p.name + ' (' + p.akreditasi + ')') AS program_studi,\n           s.persen_wt_kurang_6_bulan AS upj_2024_wt_lt_6_pct\n    LIMIT 1\n  `;\n  params = {};\n}\n\nreturn [{\n  json: {\n    message: msg,\n    normalized_message: norm,\n    intent,\n    prodi_codes,\n    faculty_codes,\n    years,\n    privacy_action,\n    refusal_message,\n    is_ambiguous,\n    cypher: cypher.trim(),\n    params\n  }\n}];"
+      {
+        "parameters": {
+          "jsCode": "// Ambil pesan dari request dan normalisasi\nconst msg = ($input.first().json.body && $input.first().json.body.message) ? String($input.first().json.body.message) : '';\nconst rawLow = msg.toLowerCase().trim();\n\n// Normalisasi typo & singkatan umum calon mahasiswa\nlet norm = rawLow\n  .replace(/\\bbya\\b/g, 'biaya')\n  .replace(/\\bkulah\\b/g, 'kuliah')\n  .replace(/\\bsmster\\b/g, 'semester')\n  .replace(/\\bsmt\\b/g, 'semester')\n  .replace(/\\bbrp\\b/g, 'berapa')\n  .replace(/\\bdpt\\b|\\bdapet\\b/g, 'dapat')\n  .replace(/\\bcepet\\b/g, 'cepat')\n  .replace(/\\bkrj\\b/g, 'kerja')\n  .replace(/\\bmatkul\\b|\\bmk\\b/g, 'mata kuliah')\n  .replace(/\\bkaprodi\\b/g, 'ketua prodi')\n  .replace(/\\bjurusan\\b/g, 'program studi');\n\n// -----------------------------------------------------------------------------\n// 1. SECURITY, PRIVACY & OUT-OF-SCOPE GUARD (DETERMINISTIC PRE-CHECK)\n// -----------------------------------------------------------------------------\nlet privacy_action = 'NONE';\nlet refusal_message = '';\n\nconst hasCypherInjection =\n  /\\b(detach\\s+delete|drop\\s+(constraint|index|database)|call\\s+(db|dbms|apoc)|load\\s+csv|union\\s+select)\\b/i.test(rawLow) ||\n  /\\b(match|create|merge)\\s*\\(/i.test(rawLow) ||\n  /\\bwith\\s+\\w+\\s+match\\b/i.test(rawLow) ||\n  /('\\s*or\\s+1\\s*=\\s*1|;\\s*(match|create|merge|delete|set)\\b|--\\s*$)/i.test(rawLow);\n\nconst hasPIIRequest =\n  /\\b(gaji|penghasilan|nomor\\s*hp|no\\s*hp|telepon\\s*pribadi|alamat\\s*rumah|nim\\b|identitas\\s*alumni|mahasiswa\\s*yang\\s*tidak\\s*lulus)\\b/i.test(norm) ||\n  /\\b(?:daftar\\s+)?nama(?:\\s+\\w+){0,2}\\s+(alumni|lulusan|mahasiswa|responden)\\b/i.test(norm) ||\n  /\\b(siapa\\s+(?:saja\\s+)?nama|siapa\\s+saja)\\b[^\\n]{0,45}\\b(alumni|lulusan|mahasiswa|responden|1\\s*orang)\\b/i.test(norm);\n\nconst hasDifferencing =\n  /\\b(selisih|dikurangi|minus|kecuali|selain)\\b/i.test(norm) &&\n  /\\b(tracer|responden|lulusan|dp|desain\\s*produk|total)\\b/i.test(norm);\n\nconst hasExternalUni =\n  /\\b(universitas\\s+indonesia|itb|ugm|ipb|its|undip|unpad|binus|trisakti|untar|uph)\\b/i.test(norm) ||\n  (/\\bui\\b/i.test(norm) && !/\\bupj\\b/i.test(norm) && /\\bkedokteran|biaya|kuliah\\b/i.test(norm));\n\nconst hasNonUpjProgram =\n  /\\b(kedokteran|teknik\\s+nuklir|farmasi|ilmu\\s+hukum|keperawatan|peternakan|pertanian|astronomi|antropologi)\\b/i.test(norm);\n\n// -----------------------------------------------------------------------------\n// 2. ENTITY & SLOT EXTRACTION (PRODI, FAKULTAS, TAHUN, SEMESTER)\n// -----------------------------------------------------------------------------\nconst prodiAliases = [\n  { code: 'INF', pats: [/\\binformatika\\b/, /\\binf\\b/] },\n  { code: 'SIF', pats: [/\\bsistem\\s+informasi\\b/, /\\bsif\\b/, /\\bsi\\b/] },\n  { code: 'AKT', pats: [/\\bakuntansi\\b/, /\\bakt\\b/] },\n  { code: 'MNJ', pats: [/\\bmanajemen\\b/, /\\bmnj\\b/] },\n  { code: 'PSI', pats: [/\\bpsikologi\\b/, /\\bpsi\\b/] },\n  { code: 'KOM', pats: [/\\bilmu\\s+komunikasi\\b/, /\\bkomunikasi\\b/, /\\bkom\\b/] },\n  { code: 'DKV', pats: [/\\bdesain\\s+komunikasi\\s+visual\\b/, /\\bdkv\\b/] },\n  { code: 'DP',  pats: [/\\bdesain\\s+produk\\b/, /\\bdp\\b/] },\n  { code: 'TSP', pats: [/\\bteknik\\s+sipil\\b/, /\\bsipil\\b/, /\\btsp\\b/] },\n  { code: 'ARS', pats: [/\\barsitektur\\b/, /\\bars\\b/] },\n  { code: 'PPAR', pats: [/\\bppar\\b/, /\\bprofesi\\s+arsitek\\b/] }\n];\n\nconst prodi_codes = [];\nfor (const pa of prodiAliases) {\n  if (pa.pats.some(rx => rx.test(norm))) {\n    prodi_codes.push(pa.code);\n  }\n}\n\nconst faculty_codes = [];\nif (/\\bftd\\b|fakultas\\s+teknologi\\s+dan\\s+desain/.test(norm)) faculty_codes.push('FTD');\nif (/\\bfhb\\b|fakultas\\s+humaniora\\s+dan\\s+bisnis/.test(norm)) faculty_codes.push('FHB');\n\nconst yearMatches = norm.match(/\\b(2022|2023|2024)\\b/g) || [];\nlet years = [...new Set(yearMatches.map(y => parseInt(y, 10)))];\nif (years.length === 2 && years.includes(2022) && years.includes(2024)) {\n  years = [2022, 2023, 2024];\n}\n\nconst semMatch = norm.match(/semester\\s*(\\d+)/);\nconst semStr = semMatch ? `Semester ${semMatch[1]}` : '';\n\n// Small-cell suppression check for DP 2022 (n=2 < 5) or explicit n=1 sub-cell queries\nconst asksSmallCohortDP2022 =\n  prodi_codes.includes('DP') && years.includes(2022) && /\\b(tracer|waktu\\s*tunggu|kesesuaian|detail|persen|alumni|kerja|responden)\\b/.test(norm);\nconst asksSmallSubCell =\n  /\\b(n\\s*=\\s*[12]|1\\s*orang\\s*alumni|2\\s*orang|sangat\\s*erat\\s*\\(n=1\\)|multinasional\\s*\\(n=1\\))\\b/i.test(norm);\n\nif (hasCypherInjection) {\n  privacy_action = 'REFUSE_SECURITY';\n  refusal_message = 'Permintaan ditolak karena mengandung pola sintaks kueri yang tidak diizinkan. Silakan ajukan pertanyaan informasi akademik UPJ dalam bahasa alami.';\n} else if (hasPIIRequest) {\n  privacy_action = 'REFUSE_PII';\n  refusal_message = 'Maaf, demi perlindungan privasi dan data pribadi, sistem tidak menyimpan maupun menampilkan data identitas personal, gaji individu alumni, NIM, nomor telepon pribadi, atau alamat rumah. Informasi publik yang tersedia hanya berupa rekapitulasi agregat program studi dan email institusional resmi (@upj.ac.id).';\n} else if (hasDifferencing) {\n  privacy_action = 'REFUSE_DIFFERENCING';\n  refusal_message = 'Maaf, permintaan pengurangan atau isolasi selisih antar-kelompok untuk mengidentifikasi kelompok responden berukuran kecil (n < 5) ditolak sesuai kebijakan pengendalian pengungkapan data (disclosure control).';\n} else if (hasExternalUni || (hasNonUpjProgram && prodi_codes.length === 0)) {\n  privacy_action = 'REFUSE_OOS';\n  refusal_message = 'Maaf, pertanyaan tersebut berada di luar cakupan informasi akademik dan tracer study Universitas Pembangunan Jaya (UPJ). Silakan tanyakan seputar 11 program studi, biaya, beasiswa, kurikulum, atau capaian lulusan UPJ.';\n} else if (asksSmallCohortDP2022 || asksSmallSubCell) {\n  privacy_action = 'SUPPRESS_SMALL_CELL';\n  refusal_message = 'Sesuai kebijakan ambang privasi kelompok kecil (n >= 5), rincian persentase kohor atau sub-sel dengan jumlah responden kurang dari 5 orang (seperti kohor Desain Produk 2022 dengan n=2 atau sub-sel tunggal n=1) ditekan untuk mencegah risiko re-identifikasi. Data hanya dapat disajikan dalam bentuk agregasi tingkat fakultas (FTD) atau tingkat universitas (UPJ).';\n}\n\n// -----------------------------------------------------------------------------\n// 3. INTENT CLASSIFICATION (SPECIFIC-FIRST, NO COLLISIONS)\n// -----------------------------------------------------------------------------\nconst hasCourse =\n  /\\b(mata\\s+kuliah|kurikulum|sks|jadwal\\s+kuliah|perkuliahan)\\b/.test(norm) ||\n  (!!semStr && !/\\b(biaya|spp|total|uang)\\b[^\\n]*semester\\s*1\\b|\\bsemester\\s*1\\b[^\\n]*\\b(biaya|spp)\\b/.test(norm));\nconst hasTracer =\n  /\\b(tracer|waktu\\s+tunggu|cepat\\s+kerja|dapat\\s+kerja|capaian\\s+kerja|kerja\\s+selaras(?:nya)?|kerja\\s+nasional(?:nya)?|kesesuaian|selaras(?:nya)?|linearitas|multinasional(?:nya)?|nasional(?:nya)?|lokal(?:nya)?|berwirausaha|lulusan(?:nya)?|responden|terlacak|keterlacakan|alumni|karir(?:nya)?|pekerjaan|prospek)\\b/.test(norm);\nconst hasTuition = /\\b(biaya(?:nya)?|ukt|spp(?:nya)?|bayar|harga|potongan|uang\\s+masuk|uang\\s+pangkal|cicil)\\b/.test(norm);\nconst hasScholarship = /\\b(beasiswa(?:nya)?|jaya\\s*100|kip|asak|influencer)\\b/.test(norm);\nconst hasLecturer = /\\b(dosen(?:nya)?|pengajar|ketua\\s+prodi|head\\s+of\\s+department|koordinator|pimpinan|prof)\\b|\\bdr\\./.test(norm);\nconst hasSpecialization = /\\b(peminatan(?:nya)?|konsentrasi(?:nya)?|spesialisasi)\\b/.test(norm);\nconst hasRequirement = /\\b(syarat(?:nya)?|buta\\s+warna|portofolio|latar\\s+belakang|ipa|smk)\\b/.test(norm);\nconst hasFacility = /\\b(fasilitas(?:nya)?|lab(?:nya)?|laboratorium(?:nya)?|studio)\\b/.test(norm);\nconst hasFAQ = /\\b(faq|ptn|uang\\s+kembali|pengembalian|jaminan\\s+kerja|keunikan)\\b/.test(norm);\nconst hasProdiMetadata = /\\b(akreditasi(?:nya)?|gelar(?:nya)?|durasi|masa\\s+studi|fakultas(?:nya)?)\\b/.test(norm);\nconst hasProdiInfo = hasProdiMetadata || /\\b(program\\s+studi|prodi)\\b/.test(norm);\nconst hasJalur = /\\b(jalur(?:nya)?|rapor|usm|pendaftaran|cara\\s+mendaftar|mendaftarnya)\\b/.test(norm);\n\nconst isMultiIntent =\n  (hasTracer && (hasCourse || hasFacility || hasRequirement || hasSpecialization || hasTuition || hasLecturer || hasProdiMetadata)) ||\n  (hasCourse && (hasLecturer || hasFacility || hasSpecialization || hasTuition)) ||\n  (hasTuition && (hasScholarship || hasLecturer || hasRequirement || hasFacility || hasSpecialization)) ||\n  (hasFacility && hasRequirement) ||\n  (hasRequirement && hasSpecialization);\n\nlet intent = 'fallback';\nlet cypher = '';\nlet params = {};\nlet is_ambiguous = false;\n\nif (privacy_action === 'REFUSE_SECURITY' || privacy_action === 'REFUSE_PII' || privacy_action === 'REFUSE_DIFFERENCING' || privacy_action === 'REFUSE_OOS') {\n  intent = privacy_action.toLowerCase();\n  cypher = 'RETURN $action AS privacy_action LIMIT 0';\n  params = { action: privacy_action };\n} else if (privacy_action === 'SUPPRESS_SMALL_CELL') {\n  intent = 'privacy_suppress_aggregate';\n  cypher = `\n    MATCH (u:University {code: 'UPJ'})-[:HAS_TRACER_SUMMARY]->(s:TracerSummary)\n    WHERE size($years) = 0 OR s.tahun IN $years\n    RETURN s.id AS source_id, s.tahun AS tahun,\n           s.total_lulusan AS upj_total_lulusan,\n           s.total_terlacak AS upj_total_terlacak,\n           s.persen_wt_kurang_6_bulan AS upj_persen_cepat_kerja,\n           s.persen_kesesuaian_selaras AS upj_persen_selaras,\n           'SUPPRESSED_COHORT_OR_SUBCELL_LT_5' AS privacy_note\n    ORDER BY s.tahun\n  `;\n  params = { years: years.length ? years : [2022, 2023, 2024] };\n} else if (isMultiIntent) {\n  // Multi-intent & Multi-hop parameterized traversal anchored at University->Faculty->ProgramStudi\n  intent = 'multi_hop_combined';\n  cypher = `\n    MATCH (u:University {code: 'UPJ'})-[:HAS_FACULTY]->(f:Faculty)-[:OFFERS_PROGRAM]->(p:ProgramStudi)\n    WHERE (size($prodi_codes) = 0 OR p.code IN $prodi_codes)\n      AND (size($faculty_codes) = 0 OR f.code IN $faculty_codes)\n    OPTIONAL MATCH (p)-[:HAS_TUITION_FEE]->(bk:BiayaKuliah)\n    RETURN u.name AS universitas,\n           p.code AS kode, p.name AS prodi, f.code AS fakultas_kode, f.name AS fakultas,\n           p.degree AS gelar, p.akreditasi AS akreditasi,\n           bk.total_semester_1 AS biaya_sem_1,\n           bk.spp AS spp,\n           [(p)-[:HAS_REQUIREMENT]->(req:SyaratKhusus) | {syarat_khusus: req.syarat_khusus, latar_belakang: req.latar_belakang}] AS syarat_khusus,\n           [(p)-[:HAS_SPECIALIZATION]->(sp:Peminatan) | sp.name] AS peminatan,\n           [(p)-[:HAS_FACILITY]->(fac:Facility) | fac.name][..10] AS fasilitas,\n           [(p)-[:OFFERS_COURSE]->(c:Course) WHERE $sem = '' OR c.semester = $sem | c.semester + ': ' + c.name][..20] AS mata_kuliah,\n           [(l:Lecturer)-[:TEACHES_IN]->(p) | l.name + ' (' + l.role + ' - ' + coalesce(l.email, '') + ')'][..8] AS dosen,\n           [(p)-[:LEADS_TO_CAREER]->(car:CareerPath) | car.name][..10] AS prospek_karir,\n           [(u)-[:OFFERS_SCHOLARSHIP]->(bs:Beasiswa) | {nama: bs.nama, syarat: bs.syarat}] AS beasiswa,\n           [(p)-[:HAS_TRACER_STUDY]->(ts:TracerStudy) WHERE (size($years) = 0 OR ts.tahun IN $years) AND ts.jumlah_terlacak >= 5 | {\n             id: ts.id,\n             tahun: ts.tahun,\n             lulusan: ts.jumlah_lulusan,\n             terlacak: ts.jumlah_terlacak,\n             wt_lt_6: CASE WHEN ts.wt_kurang_6_bulan < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.wt_kurang_6_bulan END,\n             persen_cepat_kerja: CASE WHEN ts.wt_kurang_6_bulan < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.persen_wt_kurang_6_bulan END,\n             selaras: CASE WHEN ts.kesesuaian_selaras < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.kesesuaian_selaras END,\n             persen_selaras: CASE WHEN ts.kesesuaian_selaras < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.persen_kesesuaian_selaras END,\n             lingkup_nasional: CASE WHEN ts.lingkup_nasional < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.lingkup_nasional END,\n             persen_nasional: CASE WHEN ts.lingkup_nasional < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.persen_lingkup_nasional END,\n             lingkup_multinasional: CASE WHEN ts.lingkup_multinasional < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.lingkup_multinasional END,\n             persen_multinasional: CASE WHEN ts.lingkup_multinasional < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.persen_lingkup_multinasional END\n           }] AS tracer_outcomes\n    ORDER BY p.code\n  `;\n  params = { prodi_codes, faculty_codes, years, sem: semStr };\n} else if (hasCourse) {\n  intent = 'course_curriculum';\n  cypher = `\n    MATCH (p:ProgramStudi)-[:OFFERS_COURSE]->(c:Course)\n    WHERE (size($prodi_codes) = 0 OR p.code IN $prodi_codes)\n      AND ($sem = '' OR c.semester = $sem)\n    RETURN p.code AS kode, p.name AS prodi, count(DISTINCT c) AS total_mata_kuliah,\n           collect(DISTINCT c.semester + ': ' + c.name + ' (' + toString(c.sks) + ' SKS)')[..25] AS daftar_mata_kuliah\n    ORDER BY p.code\n  `;\n  params = { prodi_codes, sem: semStr };\n} else if (hasLecturer) {\n  intent = 'lecturer_profile';\n  cypher = `\n    MATCH (l:Lecturer)-[:TEACHES_IN]->(p:ProgramStudi)\n    WHERE size($prodi_codes) = 0 OR p.code IN $prodi_codes\n    RETURN p.code AS kode, p.name AS prodi, l.name AS dosen, l.role AS jabatan, l.email AS email\n    ORDER BY p.code, l.name\n    LIMIT 30\n  `;\n  params = { prodi_codes };\n} else if (hasTracer) {\n  if (faculty_codes.length > 0 && prodi_codes.length === 0) {\n    intent = 'tracer_faculty_comparison';\n    cypher = `\n      MATCH (f:Faculty)-[:OFFERS_PROGRAM]->(p:ProgramStudi)-[:HAS_TRACER_STUDY]->(ts:TracerStudy)\n      WHERE f.code IN $faculty_codes AND (size($years) = 0 OR ts.tahun IN $years)\n      RETURN f.code AS fakultas_kode, f.name AS fakultas, ts.tahun AS tahun,\n             sum(ts.jumlah_lulusan) AS total_lulusan,\n             sum(ts.jumlah_terlacak) AS total_terlacak,\n             sum(ts.wt_kurang_6_bulan) AS total_wt_lt_6,\n             sum(ts.kesesuaian_selaras) AS total_selaras\n      ORDER BY ts.tahun, f.code\n    `;\n    params = { faculty_codes, years: years.length ? years : [2024] };\n  } else if (prodi_codes.length > 0) {\n    intent = 'tracer_prodi';\n    cypher = `\n      MATCH (p:ProgramStudi)\n      WHERE p.code IN $prodi_codes\n      OPTIONAL MATCH (p)-[:HAS_TRACER_STUDY]->(ts:TracerStudy)\n        WHERE size($years) = 0 OR ts.tahun IN $years\n      WITH p, ts\n      ORDER BY p.code, ts.tahun\n      RETURN p.code AS kode, p.name AS prodi, p.degree AS gelar,\n             [(p)-[:LEADS_TO_CAREER]->(car:CareerPath) | car.name][..6] AS prospek_karir,\n             collect(CASE\n               WHEN ts IS NULL THEN null\n               WHEN ts.jumlah_terlacak < 5 THEN {id: ts.id, tahun: ts.tahun, status: 'SUPPRESSED_COHORT_LT_5'}\n               ELSE {\n                 id: ts.id,\n                 tahun: ts.tahun,\n                 lulusan: ts.jumlah_lulusan,\n                 terlacak: ts.jumlah_terlacak,\n                 persen_terlacak: ts.persentase_terlacak,\n                 wt_lt_6: CASE WHEN ts.wt_kurang_6_bulan < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.wt_kurang_6_bulan END,\n                 persen_wt_lt_6: CASE WHEN ts.wt_kurang_6_bulan < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.persen_wt_kurang_6_bulan END,\n                 kesesuaian_selaras: CASE WHEN ts.kesesuaian_selaras < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.kesesuaian_selaras END,\n                 persen_selaras: CASE WHEN ts.kesesuaian_selaras < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.persen_kesesuaian_selaras END,\n                 lingkup_lokal: 'EMPTY_IN_SOURCE_DATA (0)',\n                 lingkup_nasional: CASE WHEN ts.lingkup_nasional < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.lingkup_nasional END,\n                 persen_nasional: CASE WHEN ts.lingkup_nasional < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.persen_lingkup_nasional END,\n                 lingkup_multinasional: CASE WHEN ts.lingkup_multinasional < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.lingkup_multinasional END,\n                 persen_multinasional: CASE WHEN ts.lingkup_multinasional < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.persen_lingkup_multinasional END,\n                 followed_by_tahun: [(ts)-[:FOLLOWED_BY]->(nxt:TracerStudy) | nxt.tahun],\n                 sectors: [(ts)-[abs:ABSORBED_BY_SECTOR]->(lk:LingkupKerja) | {\n                   kategori: lk.kategori,\n                   jumlah: CASE WHEN abs.jumlah < 5 THEN 'SUPPRESSED_LT_5' ELSE abs.jumlah END\n                 }]\n               }\n             END) AS tracer_records\n      ORDER BY p.code\n    `;\n    params = { prodi_codes, years };\n  } else {\n    intent = 'tracer_university_summary';\n    if (/\\bprospek\\s*kerjanya\\s*bagus\\b/.test(norm)) {\n      is_ambiguous = true;\n    }\n    cypher = `\n      MATCH (u:University {code: 'UPJ'})-[:HAS_TRACER_SUMMARY]->(s:TracerSummary)\n      WHERE size($years) = 0 OR s.tahun IN $years\n      RETURN s.id AS summary_id, s.tahun AS tahun,\n             s.total_lulusan AS total_lulusan,\n             s.total_terlacak AS total_terlacak,\n             s.persentase_terlacak AS persen_terlacak,\n             s.total_wt_kurang_6_bulan AS total_wt_lt_6,\n             s.persen_wt_kurang_6_bulan AS persen_wt_lt_6,\n             s.total_kesesuaian_selaras AS total_selaras,\n             s.persen_kesesuaian_selaras AS persen_selaras,\n             s.total_lingkup_nasional AS total_nasional,\n             s.persen_lingkup_nasional AS persen_nasional,\n             s.total_lingkup_multinasional AS total_multinasional,\n             s.persen_lingkup_multinasional AS persen_multinasional,\n             'Column_13_Lokal_Empty_In_Source_0' AS catatan_lokal,\n             [(s)-[:INCLUDES_PRODI_TRACER]->(ts:TracerStudy) WHERE ts.jumlah_terlacak >= 5 | {\n               prodi: ts.prodi_code,\n               terlacak: ts.jumlah_terlacak,\n               wt_lt_6: CASE WHEN ts.wt_kurang_6_bulan < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.wt_kurang_6_bulan END,\n               persen_wt_lt_6: CASE WHEN ts.wt_kurang_6_bulan < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.persen_wt_kurang_6_bulan END,\n               selaras: CASE WHEN ts.kesesuaian_selaras < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.kesesuaian_selaras END,\n               persen_selaras: CASE WHEN ts.kesesuaian_selaras < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.persen_kesesuaian_selaras END,\n               nasional: CASE WHEN ts.lingkup_nasional < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.lingkup_nasional END,\n               multinasional: CASE WHEN ts.lingkup_multinasional < 5 THEN 'SUPPRESSED_LT_5' ELSE ts.lingkup_multinasional END\n             }] AS prodi_breakdown\n      ORDER BY s.tahun\n    `;\n    params = { years };\n  }\n} else if (hasTuition) {\n  if (/\\b(potongan|rapor|uang\\s+masuk)\\b/.test(norm)) {\n    intent = 'tuition_discount';\n    cypher = `\n      MATCH (u:University {code: 'UPJ'})\n      RETURN u.potongan_uang_masuk_json AS potongan_uang_masuk,\n             u.jalur_pendaftaran_json AS jalur_pendaftaran\n    `;\n    params = {};\n  } else {\n    intent = 'tuition_fee';\n    if (prodi_codes.length === 0) is_ambiguous = true;\n    cypher = `\n      MATCH (p:ProgramStudi)-[:HAS_TUITION_FEE]->(b:BiayaKuliah)\n      WHERE size($prodi_codes) = 0 OR p.code IN $prodi_codes\n      RETURN p.code AS kode, p.name AS prodi, b.spp AS spp,\n             b.sks_kelas AS sks_kelas, b.sks_praktik AS sks_praktik,\n             b.total_semester_1 AS total_semester_1\n      ORDER BY b.total_semester_1 ASC\n    `;\n    params = { prodi_codes };\n  }\n} else if (hasScholarship) {\n  intent = 'scholarship';\n  cypher = `\n    MATCH (u:University {code: 'UPJ'})-[:OFFERS_SCHOLARSHIP]->(bs:Beasiswa)\n    RETURN bs.nama AS nama_beasiswa, bs.syarat AS syarat\n    ORDER BY bs.nama\n  `;\n  params = {};\n} else if (hasSpecialization) {\n  intent = 'specialization';\n  cypher = `\n    MATCH (p:ProgramStudi)-[:HAS_SPECIALIZATION]->(sp:Peminatan)\n    WHERE size($prodi_codes) = 0 OR p.code IN $prodi_codes\n    RETURN p.code AS kode, p.name AS prodi,\n           collect(DISTINCT sp.name) AS peminatan,\n           collect(DISTINCT sp.waktu_pemilihan)[0] AS waktu_pemilihan\n    ORDER BY p.code\n  `;\n  params = { prodi_codes };\n} else if (hasRequirement) {\n  intent = 'special_requirement';\n  cypher = `\n    MATCH (p:ProgramStudi)-[:HAS_REQUIREMENT]->(sk:SyaratKhusus)\n    WHERE size($prodi_codes) = 0 OR p.code IN $prodi_codes\n    RETURN p.code AS kode, p.name AS prodi, sk.syarat_khusus AS syarat_khusus, sk.latar_belakang AS latar_belakang\n    ORDER BY p.code\n  `;\n  params = { prodi_codes };\n} else if (hasFAQ) {\n  intent = 'faq';\n  cypher = `\n    MATCH (u:University {code: 'UPJ'})-[:HAS_FAQ]->(f:FAQ)\n    RETURN f.pertanyaan AS pertanyaan, f.jawaban AS jawaban\n  `;\n  params = {};\n} else if (hasFacility) {\n  intent = 'facility';\n  cypher = `\n    MATCH (p:ProgramStudi)-[:HAS_FACILITY]->(f:Facility)\n    WHERE size($prodi_codes) = 0 OR p.code IN $prodi_codes\n    RETURN p.code AS kode, p.name AS prodi, collect(DISTINCT f.name) AS fasilitas\n    ORDER BY p.code\n  `;\n  params = { prodi_codes };\n} else if (hasProdiInfo) {\n  intent = 'program_studi_info';\n  cypher = `\n    MATCH (f:Faculty)-[:OFFERS_PROGRAM]->(p:ProgramStudi)\n    WHERE size($prodi_codes) = 0 OR p.code IN $prodi_codes\n    RETURN f.code AS fakultas_kode, f.name AS fakultas, p.code AS kode, p.name AS prodi,\n           p.akreditasi AS akreditasi, p.degree AS gelar, p.duration AS durasi\n    ORDER BY f.code, p.code\n  `;\n  params = { prodi_codes };\n} else if (hasJalur) {\n  intent = 'admission_path';\n  cypher = `\n    MATCH (u:University {code: 'UPJ'})\n    OPTIONAL MATCH (u)-[:OFFERS_SCHOLARSHIP]->(bs:Beasiswa)\n    RETURN u.pmb_website AS website_pmb,\n           u.jalur_pendaftaran_json AS jalur_pendaftaran,\n           u.potongan_uang_masuk_json AS potongan_uang_masuk,\n           collect(DISTINCT {nama: bs.nama, syarat: bs.syarat}) AS beasiswa\n  `;\n  params = {};\n} else {\n  intent = 'fallback_overview';\n  is_ambiguous = true;\n  cypher = `\n    MATCH (u:University {code: 'UPJ'})\n    OPTIONAL MATCH (u)-[:HAS_FACULTY]->(f:Faculty)-[:OFFERS_PROGRAM]->(p:ProgramStudi)\n    OPTIONAL MATCH (u)-[:HAS_TRACER_SUMMARY]->(s:TracerSummary {tahun: 2024})\n    RETURN u.name AS universitas, u.pmb_website AS website_pmb,\n           collect(DISTINCT p.code + ' - ' + p.name + ' (' + p.akreditasi + ')') AS program_studi,\n           s.persen_wt_kurang_6_bulan AS upj_2024_wt_lt_6_pct\n    LIMIT 1\n  `;\n  params = {};\n}\n\nreturn [{\n  json: {\n    message: msg,\n    normalized_message: norm,\n    intent,\n    prodi_codes,\n    faculty_codes,\n    years,\n    privacy_action,\n    refusal_message,\n    is_ambiguous,\n    cypher: cypher.trim(),\n    params\n  }\n}];"
+        },
+        "id": "node-build-cypher",
+        "name": "Build Cypher Query",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          320,
+          300
+        ]
       },
-      "id": "node-build-cypher",
-      "name": "Build Cypher Query",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        320,
-        300
-      ]
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "http://127.0.0.1:7474/db/neo4j/tx/commit",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "http://neo4j:7474/db/neo4j/tx/commit",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "Accept",
+                "value": "application/json"
+              },
+              {
+                "name": "Authorization",
+                "value": "Basic bmVvNGo6cGFzc3dvcmQxMjM="
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"statements\": [\n    {\n      \"statement\": {{ JSON.stringify($json.cypher) }},\n      \"parameters\": {{ JSON.stringify($json.params || {}) }},\n      \"resultDataContents\": [\"row\", \"graph\"]\n    }\n  ]\n}",
+          "options": {
+            "timeout": 10000
+          }
+        },
+        "id": "node-neo4j-http",
+        "name": "Query Neo4j REST API",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          540,
+          300
+        ]
+      },
+      {
+        "parameters": {
+          "jsCode": "// Ambil data dari Neo4j response dan metadata router\nconst neo4jResponse = $input.first().json;\nconst routerMeta = $('Build Cypher Query').first().json;\nconst message = routerMeta.message;\nconst intent = routerMeta.intent;\nconst privacy_action = routerMeta.privacy_action || 'NONE';\nconst refusal_message = routerMeta.refusal_message || '';\nconst is_ambiguous = !!routerMeta.is_ambiguous;\n\nlet contextObj = {\n  intent,\n  privacy_action,\n  is_ambiguous,\n  rows: []\n};\n\ntry {\n  const results = neo4jResponse.results || [];\n  if (results.length > 0 && results[0].data && results[0].data.length > 0) {\n    const columns = results[0].columns || [];\n    contextObj.rows = results[0].data.map(d => {\n      const obj = {};\n      columns.forEach((col, i) => { obj[col] = d.row[i]; });\n      return obj;\n    });\n  }\n} catch (e) {\n  contextObj.parse_error = e.message;\n}\n\nconst contextText = contextObj.rows.length > 0\n  ? JSON.stringify(contextObj, null, 2)\n  : 'TIDAK ADA DATA DITEMUKAN DI KNOWLEDGE GRAPH.';\n\nconst prompt = `Kamu adalah asisten informasi resmi Universitas Pembangunan Jaya (UPJ).\n\nStructured Evidence Payload (JSON dari Knowledge Graph Neo4j):\n${contextText}\n\nPertanyaan Pengguna:\n${message}\n\nAturan Ketat (Negative Constraints):\n1. Jawab HANYA berdasarkan angka dan fakta eksplisit di dalam Structured Evidence Payload di atas. DILARANG mengarang atau mengekstrapolasi angka.\n2. Jika suatu nilai tertulis \"SUPPRESSED_LT_5\", \"SUPPRESSED_COHORT_LT_5\", atau privacy_action aktif, sampaikan secara sopan bahwa rincian tersebut ditekan demi privasi kelompok kecil (n < 5) dan tampilkan data agregat universitas bila tersedia.\n3. Jika is_ambiguous=true (mis. prodi belum disebutkan), minta klarifikasi prodi tujuan sambil menampilkan ringkasan rentang resmi yang ada pada payload.\n4. Jika data kosong atau tertulis \"EMPTY_IN_SOURCE_DATA\", nyatakan secara jujur bahwa data tersebut tidak tercatat di sumber resmi dan arahkan ke pmb.upj.ac.id.\n5. Jika pertanyaan berkaitan dengan hubungan mata kuliah dan tracer study, tegaskan bahwa data menunjukkan asosiasi tingkat program studi, bukan korelasi kausal individu.`;\n\nreturn [{\n  json: {\n    message,\n    intent,\n    privacy_action,\n    refusal_message,\n    is_ambiguous,\n    context: contextText,\n    prompt\n  }\n}];\n"
+        },
+        "id": "node-format-prompt",
+        "name": "Format Prompt",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          760,
+          300
+        ]
+      },
+      {
+        "parameters": {
+          "method": "POST",
+          "url": "https://api.sumopod.com/v1/chat/completions",
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "name": "Authorization",
+                "value": "=Bearer {{ $vars.SUMOPOD_API_KEY }}"
+              }
+            ]
+          },
+          "sendBody": true,
+          "specifyBody": "json",
+          "jsonBody": "={\n  \"model\": \"{{ $vars.SUMOPOD_MODEL || 'gpt-4o-mini' }}\",\n  \"temperature\": 0.1,\n  \"max_tokens\": 1000,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Kamu adalah asisten informasi resmi Universitas Pembangunan Jaya (UPJ). Jawab secara akurat, faktual, dan terstruktur dalam Bahasa Indonesia hanya berdasarkan konteks JSON yang diberikan.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": {{ JSON.stringify($json.prompt) }}\n    }\n  ]\n}",
+          "options": {
+            "timeout": 30000
+          }
+        },
+        "id": "node-sumopod-llm",
+        "name": "SumoPod LLM",
+        "type": "n8n-nodes-base.httpRequest",
+        "typeVersion": 4.2,
+        "position": [
+          980,
+          300
+        ],
+        "onError": "continueRegularOutput"
+      },
+      {
+        "parameters": {
+          "jsCode": "const llmResponse = $input.first().json;\nconst fmt = $('Format Prompt').first().json;\nconst privacy_action = fmt.privacy_action || 'NONE';\nconst refusal_message = fmt.refusal_message || '';\n\n// Deterministic enforcement for hard privacy/security/OOS blocks\nif (['REFUSE_SECURITY', 'REFUSE_PII', 'REFUSE_DIFFERENCING', 'REFUSE_OOS'].includes(privacy_action) && refusal_message) {\n  return [{\n    json: {\n      response: refusal_message,\n      intent: fmt.intent,\n      privacy_action,\n      source: 'n8n_deterministic_guard'\n    }\n  }];\n}\n\nlet responseText = '';\n\nif (llmResponse && llmResponse.choices && llmResponse.choices.length > 0 && llmResponse.choices[0].message && llmResponse.choices[0].message.content) {\n  responseText = llmResponse.choices[0].message.content;\n} else {\n  try {\n    const parsedCtx = JSON.parse(fmt.context);\n    const rows = parsedCtx.rows || [];\n    if (rows.length === 0) {\n      responseText = 'Halo! Saya asisten informasi resmi Universitas Pembangunan Jaya (UPJ). Data yang Anda cari belum tercatat di basis pengetahuan resmi, silakan hubungi PMB UPJ di pmb.upj.ac.id.';\n    } else if (fmt.intent === 'fallback_overview') {\n      const r = rows[0] || {};\n      const prodis = (r.program_studi || []).map(p => `• ${p}`).join('\\n');\n      responseText = `Halo! Selamat datang di Layanan Informasi Akademik ${r.universitas || 'Universitas Pembangunan Jaya (UPJ)'}.\\n\\nTersedia 11 Program Studi pilihan:\\n${prodis}\\n\\n🌐 Website PMB: ${r.website_pmb || 'https://pmb.upj.ac.id'}\\n💡 Anda dapat menanyakan seputar biaya kuliah, kurikulum, beasiswa, dosen, tracer study, atau prospek karir.`;\n    } else if (fmt.intent === 'lecturer_profile') {\n      const prodiName = rows[0].prodi || '';\n      const list = rows.map(r => `• <b>${r.dosen}</b> (${r.jabatan || 'Dosen'})${r.email ? ' - ' + r.email : ''}`).join('\\n');\n      responseText = `Berikut daftar dosen program studi ${prodiName}:\\n\\n${list}`;\n    } else if (fmt.intent === 'course_curriculum') {\n      const prodiName = rows[0].prodi || '';\n      const list = rows.flatMap(r => (r.daftar_mata_kuliah || []).map(c => `• ${c}`)).join('\\n');\n      responseText = `Berikut kurikulum mata kuliah program studi ${prodiName}:\\n\\n${list}`;\n    } else if (fmt.intent === 'tuition_fee') {\n      const list = rows.map(r => `• <b>${r.prodi} (${r.kode})</b>: SPP Rp${Number(r.spp || 0).toLocaleString('id-ID')}, Total Semester 1: Rp${Number(r.total_semester_1 || 0).toLocaleString('id-ID')}`).join('\\n');\n      responseText = `Berikut rincian biaya kuliah UPJ:\\n\\n${list}`;\n    } else if (fmt.intent === 'tuition_discount') {\n      const r = rows[0] || {};\n      let potonganStr = '';\n      try {\n        const pList = typeof r.potongan_uang_masuk === 'string' ? JSON.parse(r.potongan_uang_masuk) : r.potongan_uang_masuk;\n        if (Array.isArray(pList)) {\n          potonganStr = pList.map(p => `• Rata-rata Rapor ${p.kategori_nilai || p.kategori || '-'}: Potongan Rp${Number(p.potongan_sumber || p.potongan || 0).toLocaleString('id-ID')}`).join('\\n');\n        }\n      } catch(e) { potonganStr = JSON.stringify(r.potongan_uang_masuk); }\n      responseText = `Berikut skema potongan uang masuk dan jalur pendaftaran UPJ:\\n\\n${potonganStr || 'Potongan uang masuk tersedia berdasarkan nilai rata-rata rapor SMA/SMK.'}\\n\\nInformasi lengkap: https://pmb.upj.ac.id`;\n    } else if (fmt.intent === 'scholarship') {\n      const list = rows.map(r => `• <b>${r.nama_beasiswa}</b>: ${r.syarat || '-'}`).join('\\n');\n      responseText = `Berikut program beasiswa yang tersedia di UPJ:\\n\\n${list}`;\n    } else if (fmt.intent === 'special_requirement') {\n      const list = rows.map(r => `• <b>${r.prodi} (${r.kode})</b>:\\n  - Syarat Khusus: ${r.syarat_khusus || 'Tidak ada syarat buta warna khusus'}\\n  - Latar Belakang: ${r.latar_belakang || 'Semua jurusan SMA/SMK sederajat'}`).join('\\n');\n      responseText = `Berikut persyaratan khusus program studi:\\n\\n${list}`;\n    } else if (fmt.intent === 'specialization') {\n      const list = rows.map(r => {\n        const pems = Array.isArray(r.peminatan) ? r.peminatan.join(', ') : r.peminatan;\n        return `• <b>${r.prodi} (${r.kode})</b>: ${pems || '-'}${r.waktu_pemilihan ? ' (Pemilihan: ' + r.waktu_pemilihan + ')' : ''}`;\n      }).join('\\n');\n      responseText = `Berikut peminatan / konsentrasi program studi UPJ:\\n\\n${list}`;\n    } else if (fmt.intent === 'facility') {\n      const list = rows.map(r => {\n        const facs = Array.isArray(r.fasilitas) ? r.fasilitas.join(', ') : r.fasilitas;\n        return `• <b>${r.prodi} (${r.kode})</b>: ${facs || '-'}`;\n      }).join('\\n');\n      responseText = `Berikut fasilitas laboratorium & studio program studi UPJ:\\n\\n${list}`;\n    } else if (fmt.intent === 'program_studi_info') {\n      const list = rows.map(r => `• <b>${r.prodi} (${r.kode})</b>: Fakultas ${r.fakultas} (${r.fakultas_kode}), Akreditasi: <b>${r.akreditasi || '-'}</b>, Gelar: ${r.gelar || '-'}`).join('\\n');\n      responseText = `Berikut informasi akademik program studi UPJ:\\n\\n${list}`;\n    } else if (fmt.intent === 'faq') {\n      const list = rows.map(r => `• <b>T: ${r.pertanyaan}</b>\\n  J: ${r.jawaban}`).join('\\n\\n');\n      responseText = `Berikut informasi kebijakan resmi UPJ:\\n\\n${list}`;\n    } else if (fmt.intent === 'tracer_prodi') {\n      let blocks = [];\n      for (const r of rows) {\n        let block = `📊 <b>Program Studi ${r.prodi || r.name || r.kode} (${r.gelar || '-'})</b>:\\n`;\n        if (r.prospek_karir && r.prospek_karir.length > 0) {\n          block += `• <b>Prospek Karir</b>: ${r.prospek_karir.join(', ')}\\n`;\n        }\n        if (r.tracer_records && Array.isArray(r.tracer_records)) {\n          const valid = r.tracer_records.filter(t => t && t.tahun);\n          for (const tr of valid) {\n            if (tr.status === 'SUPPRESSED_COHORT_LT_5') {\n              block += `• Tahun ${tr.tahun}: [Data ditekan: Kohor responden < 5 orang]\\n`;\n            } else {\n              block += `• <b>Tracer Study ${tr.tahun}</b>: Lulusan: ${tr.lulusan}, Terlacak: ${tr.terlacak} (${tr.persen_terlacak || '-'}%), Cepat Kerja (<6 bln): ${tr.wt_lt_6} (${tr.persen_wt_lt_6 || '-'}%), Kerja Selaras: ${tr.kesesuaian_selaras} (${tr.persen_selaras || '-'}%), Lingkup Multinasional: ${tr.lingkup_multinasional || 0} (${tr.persen_multinasional || 0}%), Nasional: ${tr.lingkup_nasional || 0} (${tr.persen_nasional || 0}%)\\n`;\n            }\n          }\n        }\n        blocks.push(block);\n      }\n      responseText = blocks.join('\\n');\n    } else if (fmt.intent === 'tracer_university_summary') {\n      let blocks = [];\n      for (const r of rows) {\n        blocks.push(`🎓 <b>Tracer Study UPJ Skala Universitas (Tahun ${r.tahun})</b>:\\n• Total Populasi Lulusan: <b>${r.total_lulusan} orang</b>\\n• Total Responden Terlacak: <b>${r.total_terlacak} orang</b> (${r.persen_terlacak}% response rate)\\n• Cepat Kerja (<6 bulan): <b>${r.total_wt_lt_6} orang</b> (${r.persen_wt_lt_6}%)\\n• Kesesuaian Kerja Selaras: <b>${r.total_selaras} orang</b> (${r.persen_selaras}%)\\n• Lingkup Kerja Nasional: <b>${r.total_nasional} orang</b> (${r.persen_nasional}%)\\n• Lingkup Kerja Multinasional: <b>${r.total_multinasional} orang</b> (${r.persen_multinasional}%)\\n• Lingkup Lokal: Tidak tercatat dalam instrumen survei (0)`);\n      }\n      responseText = blocks.join('\\n\\n');\n    } else if (fmt.intent === 'tracer_faculty_comparison') {\n      let blocks = rows.map(r => `• <b>Fakultas ${r.fakultas} (${r.fakultas_kode}) - Tahun ${r.tahun}</b>: Lulusan: ${r.total_lulusan}, Terlacak: ${r.total_terlacak}, Cepat Kerja (<6 bln): ${r.total_wt_lt_6}, Kerja Selaras: ${r.total_selaras}`).join('\\n');\n      responseText = `Berikut rekapitulasi perbandingan tracer study tingkat fakultas:\\n\\n${blocks}`;\n    } else if (fmt.intent === 'multi_hop_combined') {\n      let blocks = [];\n      for (const r of rows) {\n        let block = `🎓 <b>${r.prodi} (${r.kode}) - Fakultas ${r.fakultas} (${r.fakultas_kode})</b>\\n`;\n        block += `• Gelar: ${r.gelar || '-'} | Akreditasi: <b>${r.akreditasi || '-'}</b>\\n`;\n        if (r.biaya_sem_1) block += `• Biaya Semester 1: Rp${Number(r.biaya_sem_1).toLocaleString('id-ID')} (SPP: Rp${Number(r.spp || 0).toLocaleString('id-ID')})\\n`;\n        if (r.syarat_khusus && r.syarat_khusus.length > 0) block += `• Syarat Khusus: ${r.syarat_khusus[0].syarat_khusus} (Latar Belakang: ${r.syarat_khusus[0].latar_belakang})\\n`;\n        if (r.peminatan && r.peminatan.length > 0) block += `• Peminatan: ${r.peminatan.join(', ')}\\n`;\n        if (r.fasilitas && r.fasilitas.length > 0) block += `• Fasilitas: ${r.fasilitas.slice(0, 5).join(', ')}\\n`;\n        if (r.mata_kuliah && r.mata_kuliah.length > 0) block += `• Mata Kuliah Terpilih: ${r.mata_kuliah.slice(0, 4).join('; ')}\\n`;\n        if (r.prospek_karir && r.prospek_karir.length > 0) block += `• Prospek Karir: ${r.prospek_karir.slice(0, 5).join(', ')}\\n`;\n        if (r.tracer_outcomes && r.tracer_outcomes.length > 0) {\n          block += `• Capaian Lulusan (Tracer Study):\\n`;\n          for (const to of r.tracer_outcomes) {\n            block += `  - Tahun ${to.tahun}: Terlacak ${to.terlacak} orang, Cepat Kerja <6 bln: ${to.persen_cepat_kerja}%, Selaras: ${to.persen_selaras}%, Multinasional: ${to.persen_multinasional}%, Nasional: ${to.persen_nasional}%\\n`;\n          }\n        }\n        blocks.push(block);\n      }\n      responseText = blocks.join('\\n\\n');\n    } else {\n      responseText = `Berikut ringkasan data resmi dari Knowledge Graph UPJ:\\n\\n` + rows.map(r => JSON.stringify(r)).join('\\n');\n    }\n  } catch (e) {\n    responseText = 'Halo! Saya asisten informasi resmi Universitas Pembangunan Jaya (UPJ). Ada yang bisa saya bantu seputar program studi, pendaftaran PMB, biaya kuliah, kurikulum, atau dosen UPJ?';\n  }\n}\n\nif (privacy_action === 'SUPPRESS_SMALL_CELL' && refusal_message && !responseText.includes('n < 5') && !responseText.includes('privasi')) {\n  responseText = `${refusal_message}\\n\\n${responseText}`;\n}\n\nreturn [{\n  json: {\n    response: responseText,\n    intent: fmt.intent,\n    privacy_action,\n    source: (llmResponse && llmResponse.choices) ? 'n8n_sumopod_neo4j' : 'n8n_kg_direct'\n  }\n}];"
+        },
+        "id": "node-extract-response",
+        "name": "Extract LLM Response",
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          1200,
+          300
+        ]
+      },
+      {
+        "parameters": {
+          "respondWith": "json",
+          "responseBody": "={{ JSON.stringify($json) }}",
+          "options": {}
+        },
+        "id": "node-respond",
+        "name": "Kirim ke Web",
+        "type": "n8n-nodes-base.respondToWebhook",
+        "typeVersion": 1.1,
+        "position": [
+          1420,
+          300
+        ]
+      }
+    ],
+    "connections": {
+      "Webhook Chat": {
+        "main": [
+          [
             {
-              "name": "Content-Type",
-              "value": "application/json"
-            },
-            {
-              "name": "Accept",
-              "value": "application/json"
-            },
-            {
-              "name": "Authorization",
-              "value": "Basic bmVvNGo6cGFzc3dvcmQxMjM="
+              "node": "Build Cypher Query",
+              "type": "main",
+              "index": 0
             }
           ]
-        },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n  \"statements\": [\n    {\n      \"statement\": {{ JSON.stringify($json.cypher) }},\n      \"parameters\": {{ JSON.stringify($json.params || {}) }},\n      \"resultDataContents\": [\"row\", \"graph\"]\n    }\n  ]\n}",
-        "options": {
-          "timeout": 10000
-        }
+        ]
       },
-      "id": "node-neo4j-http",
-      "name": "Query Neo4j REST API",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        540,
-        300
-      ]
-    },
-    {
-      "parameters": {
-        "jsCode": "// Ambil data dari Neo4j response dan metadata router\nconst neo4jResponse = $input.first().json;\nconst routerMeta = $('Build Cypher Query').first().json;\nconst message = routerMeta.message;\nconst intent = routerMeta.intent;\nconst privacy_action = routerMeta.privacy_action || 'NONE';\nconst refusal_message = routerMeta.refusal_message || '';\nconst is_ambiguous = !!routerMeta.is_ambiguous;\n\nlet contextObj = {\n  intent,\n  privacy_action,\n  is_ambiguous,\n  rows: []\n};\n\ntry {\n  const results = neo4jResponse.results || [];\n  if (results.length > 0 && results[0].data && results[0].data.length > 0) {\n    const columns = results[0].columns || [];\n    contextObj.rows = results[0].data.map(d => {\n      const obj = {};\n      columns.forEach((col, i) => { obj[col] = d.row[i]; });\n      return obj;\n    });\n  }\n} catch (e) {\n  contextObj.parse_error = e.message;\n}\n\nconst contextText = contextObj.rows.length > 0\n  ? JSON.stringify(contextObj, null, 2)\n  : 'TIDAK ADA DATA DITEMUKAN DI KNOWLEDGE GRAPH.';\n\nconst prompt = `Kamu adalah asisten informasi resmi Universitas Pembangunan Jaya (UPJ).\n\nStructured Evidence Payload (JSON dari Knowledge Graph Neo4j):\n${contextText}\n\nPertanyaan Pengguna:\n${message}\n\nAturan Ketat (Negative Constraints):\n1. Jawab HANYA berdasarkan angka dan fakta eksplisit di dalam Structured Evidence Payload di atas. DILARANG mengarang atau mengekstrapolasi angka.\n2. Jika suatu nilai tertulis \"SUPPRESSED_LT_5\", \"SUPPRESSED_COHORT_LT_5\", atau privacy_action aktif, sampaikan secara sopan bahwa rincian tersebut ditekan demi privasi kelompok kecil (n < 5) dan tampilkan data agregat universitas bila tersedia.\n3. Jika is_ambiguous=true (mis. prodi belum disebutkan), minta klarifikasi prodi tujuan sambil menampilkan ringkasan rentang resmi yang ada pada payload.\n4. Jika data kosong atau tertulis \"EMPTY_IN_SOURCE_DATA\", nyatakan secara jujur bahwa data tersebut tidak tercatat di sumber resmi dan arahkan ke pmb.upj.ac.id.\n5. Jika pertanyaan berkaitan dengan hubungan mata kuliah dan tracer study, tegaskan bahwa data menunjukkan asosiasi tingkat program studi, bukan korelasi kausal individu.`;\n\nreturn [{\n  json: {\n    message,\n    intent,\n    privacy_action,\n    refusal_message,\n    is_ambiguous,\n    context: contextText,\n    prompt\n  }\n}];\n"
-      },
-      "id": "node-format-prompt",
-      "name": "Format Prompt",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        760,
-        300
-      ]
-    },
-    {
-      "parameters": {
-        "method": "POST",
-        "url": "https://api.sumopod.com/v1/chat/completions",
-        "sendHeaders": true,
-        "headerParameters": {
-          "parameters": [
+      "Build Cypher Query": {
+        "main": [
+          [
             {
-              "name": "Content-Type",
-              "value": "application/json"
-            },
-            {
-              "name": "Authorization",
-              "value": "=Bearer {{ $vars.SUMOPOD_API_KEY }}"
+              "node": "Query Neo4j REST API",
+              "type": "main",
+              "index": 0
             }
           ]
-        },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={\n  \"model\": \"{{ $vars.SUMOPOD_MODEL || 'gpt-4o-mini' }}\",\n  \"temperature\": 0.1,\n  \"max_tokens\": 1000,\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"Kamu adalah asisten informasi resmi Universitas Pembangunan Jaya (UPJ). Jawab secara akurat, faktual, dan terstruktur dalam Bahasa Indonesia hanya berdasarkan konteks JSON yang diberikan.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": {{ JSON.stringify($json.prompt) }}\n    }\n  ]\n}",
-        "options": {
-          "timeout": 30000
+        ]
+      },
+      "Query Neo4j REST API": {
+        "main": [
+          [
+            {
+              "node": "Format Prompt",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Format Prompt": {
+        "main": [
+          [
+            {
+              "node": "SumoPod LLM",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "SumoPod LLM": {
+        "main": [
+          [
+            {
+              "node": "Extract LLM Response",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Extract LLM Response": {
+        "main": [
+          [
+            {
+              "node": "Kirim ke Web",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "settings": {
+      "executionOrder": "v1"
+    },
+    "staticData": null,
+    "meta": null,
+    "nodeGroups": [],
+    "pinData": null,
+    "versionId": "90b06b7d-ae89-463a-bd35-249b8b272483",
+    "activeVersionId": "90b06b7d-ae89-463a-bd35-249b8b272483",
+    "versionCounter": 1,
+    "triggerCount": 1,
+    "sourceWorkflowId": null,
+    "tags": [],
+    "shared": [
+      {
+        "updatedAt": "2026-11-10T16:58:07.958Z",
+        "createdAt": "2026-11-10T16:58:07.958Z",
+        "role": "workflow:owner",
+        "workflowId": "hn2LZm7utSuYNsM2",
+        "projectId": "mAIRrivxqEfUMs0A",
+        "project": {
+          "updatedAt": "2026-11-10T16:44:31.848Z",
+          "createdAt": "2026-11-10T16:44:31.848Z",
+          "id": "mAIRrivxqEfUMs0A",
+          "name": "Unnamed Project",
+          "type": "personal",
+          "icon": null,
+          "description": null,
+          "customTelemetryTags": [],
+          "creatorId": "e391f617-3f73-420d-9e24-e49aed33da41"
         }
-      },
-      "id": "node-sumopod-llm",
-      "name": "SumoPod LLM",
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [
-        980,
-        300
-      ]
-    },
-    {
-      "parameters": {
-        "jsCode": "const llmResponse = $input.first().json;\nconst fmt = $('Format Prompt').first().json;\nconst privacy_action = fmt.privacy_action || 'NONE';\nconst refusal_message = fmt.refusal_message || '';\n\n// Deterministic enforcement for hard privacy/security/OOS blocks\nif (['REFUSE_SECURITY', 'REFUSE_PII', 'REFUSE_DIFFERENCING', 'REFUSE_OOS'].includes(privacy_action) && refusal_message) {\n  return [{\n    json: {\n      response: refusal_message,\n      intent: fmt.intent,\n      privacy_action,\n      source: 'n8n_deterministic_guard'\n    }\n  }];\n}\n\nlet responseText = 'Maaf, data yang diminta belum tersedia di basis pengetahuan UPJ. Silakan hubungi PMB UPJ di pmb.upj.ac.id.';\n\ntry {\n  if (llmResponse.choices && llmResponse.choices.length > 0) {\n    responseText = llmResponse.choices[0].message.content || responseText;\n  } else if (llmResponse.error) {\n    responseText = `Maaf, terjadi kendala pada layanan AI: ${llmResponse.error.message}. Silakan coba lagi.`;\n  }\n} catch (e) {\n  responseText = 'Terjadi kesalahan teknis. Silakan hubungi PMB UPJ di pmb.upj.ac.id.';\n}\n\nif (privacy_action === 'SUPPRESS_SMALL_CELL' && refusal_message && !responseText.includes('n < 5') && !responseText.includes('privasi')) {\n  responseText = `${refusal_message}\\n\\n${responseText}`;\n}\n\nreturn [{\n  json: {\n    response: responseText,\n    intent: fmt.intent,\n    privacy_action,\n    source: 'n8n_sumopod_neo4j'\n  }\n}];\n"
-      },
-      "id": "node-extract-response",
-      "name": "Extract LLM Response",
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1200,
-        300
-      ]
-    },
-    {
-      "parameters": {
-        "respondWith": "json",
-        "responseBody": "={{ JSON.stringify($json) }}",
-        "options": {}
-      },
-      "id": "node-respond",
-      "name": "Kirim ke Web",
-      "type": "n8n-nodes-base.respondToWebhook",
-      "typeVersion": 1.1,
-      "position": [
-        1420,
-        300
-      ]
+      }
+    ],
+    "versionMetadata": {
+      "name": null,
+      "description": null
     }
-  ],
-  "connections": {
-    "Webhook Chat": {
-      "main": [
-        [
-          {
-            "node": "Build Cypher Query",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Build Cypher Query": {
-      "main": [
-        [
-          {
-            "node": "Query Neo4j REST API",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Query Neo4j REST API": {
-      "main": [
-        [
-          {
-            "node": "Format Prompt",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Format Prompt": {
-      "main": [
-        [
-          {
-            "node": "SumoPod LLM",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "SumoPod LLM": {
-      "main": [
-        [
-          {
-            "node": "Extract LLM Response",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Extract LLM Response": {
-      "main": [
-        [
-          {
-            "node": "Kirim ke Web",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    }
-  },
-  "settings": {
-    "executionOrder": "v1"
   }
-}
+]

@@ -2,3 +2,12 @@
 ~$*
 __pycache__/
 *.pyc
+
+# Docker volume data mounts
+n8n_data/
+neo4j_data/
+
+# Temporary / Scratch files
+scratch/
+temp_payload.json
+test_curl.sh

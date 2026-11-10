@@ -3,11 +3,35 @@ from urllib.parse import urlparse
 import requests
 from flask import Flask, request, jsonify, render_template
 
+try:
+    from neo4j import GraphDatabase
+except ImportError:
+    GraphDatabase = None
+
 app = Flask(__name__)
 
 # URL Webhook n8n (Production: /webhook/chat, Testing: /webhook-test/chat)
 N8N_WEBHOOK_URL = os.getenv("N8N_WEBHOOK_URL", "http://localhost:5678/webhook/chat")
 N8N_TEST_WEBHOOK_URL = os.getenv("N8N_TEST_WEBHOOK_URL", "http://localhost:5678/webhook-test/chat")
+
+# Neo4j Settings
+NEO4J_URI = os.getenv("NEO4J_URI", "bolt://localhost:7687")
+NEO4J_USER = os.getenv("NEO4J_USER", "neo4j")
+NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "password123")
+
+_neo4j_driver = None
+
+
+def get_neo4j_driver():
+    global _neo4j_driver
+    if GraphDatabase is None:
+        return None
+    if _neo4j_driver is None:
+        try:
+            _neo4j_driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
+        except Exception:
+            _neo4j_driver = None
+    return _neo4j_driver
 
 
 def _derive_n8n_base_url():
@@ -55,6 +79,32 @@ def n8n_status():
         return jsonify({"status": "offline"})
 
 
+@app.route("/api/graph/stats", methods=["GET"])
+def graph_stats():
+    driver = get_neo4j_driver()
+    if not driver:
+        return jsonify({"status": "disconnected", "nodes": 0, "counts": {}})
+    try:
+        with driver.session() as session:
+            total = session.run("MATCH (n) RETURN count(n) as c").single()["c"]
+            prodi = session.run("MATCH (n:ProgramStudi) RETURN count(n) as c").single()["c"]
+            lecturers = session.run("MATCH (n:Lecturer) RETURN count(n) as c").single()["c"]
+            courses = session.run("MATCH (n:Course) RETURN count(n) as c").single()["c"]
+            pages = session.run("MATCH (n:WebPage) RETURN count(n) as c").single()["c"]
+            return jsonify({
+                "status": "connected",
+                "nodes": total,
+                "counts": {
+                    "prodi": prodi,
+                    "lecturers": lecturers,
+                    "courses": courses,
+                    "pages": pages
+                }
+            })
+    except Exception as e:
+        return jsonify({"status": "disconnected", "nodes": 0, "error": str(e), "counts": {}})
+
+
 @app.route("/api/chat", methods=["POST"])
 def chat():
     data = request.get_json(silent=True) or {}
@@ -98,6 +148,6 @@ def chat():
 
 
 if __name__ == "__main__":
-    port = int(os.getenv("PORT", 5001))
+    port = int(os.getenv("PORT", 5000))
     print(f"Starting Clean Flask Gateway on http://localhost:{port}")
     app.run(host="0.0.0.0", port=port, debug=False)
