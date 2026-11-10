@@ -1,4 +1,5 @@
 import os
+from urllib.parse import urlparse
 import requests
 from flask import Flask, request, jsonify, render_template
 
@@ -8,22 +9,56 @@ app = Flask(__name__)
 N8N_WEBHOOK_URL = os.getenv("N8N_WEBHOOK_URL", "http://localhost:5678/webhook/chat")
 N8N_TEST_WEBHOOK_URL = os.getenv("N8N_TEST_WEBHOOK_URL", "http://localhost:5678/webhook-test/chat")
 
+
+def _derive_n8n_base_url():
+    """Return configured n8n base URL or derive it from N8N_WEBHOOK_URL."""
+    explicit = os.getenv("N8N_BASE_URL")
+    if explicit:
+        return explicit.rstrip("/")
+    parsed = urlparse(N8N_WEBHOOK_URL)
+    if parsed.scheme and parsed.netloc:
+        return f"{parsed.scheme}://{parsed.netloc}"
+    return "http://localhost:5678"
+
+
+N8N_BASE_URL = _derive_n8n_base_url()
+
+
+def extract_n8n_payload(res_json):
+    """Normalize dict/list responses from n8n webhooks while preserving safe metadata."""
+    target = res_json[0] if isinstance(res_json, list) and len(res_json) > 0 else res_json
+    if isinstance(target, dict):
+        if "response" in target:
+            return target
+        for key in ("output", "text"):
+            if target.get(key):
+                payload = {"response": target[key]}
+                for meta_key in ("intent", "privacy_action", "source"):
+                    if meta_key in target:
+                        payload[meta_key] = target[meta_key]
+                return payload
+        return {"response": str(target)}
+    return {"response": str(res_json)}
+
+
 @app.route("/")
 def index():
     return render_template("index.html")
 
+
 @app.route("/api/n8n/status", methods=["GET"])
 def n8n_status():
     try:
-        r = requests.get("http://localhost:5678", timeout=2)
-        return jsonify({"status": "online" if r.status_code == 200 else "offline"})
+        r = requests.get(N8N_BASE_URL, timeout=2)
+        return jsonify({"status": "online" if 200 <= r.status_code < 400 else "offline"})
     except Exception:
         return jsonify({"status": "offline"})
 
+
 @app.route("/api/chat", methods=["POST"])
 def chat():
-    data = request.get_json() or {}
-    message = data.get("message", "").strip()
+    data = request.get_json(silent=True) or {}
+    message = str(data.get("message") or "").strip()
     if not message:
         return jsonify({"response": "Silakan ajukan pertanyaan seputar UPJ."})
 
@@ -40,24 +75,8 @@ def chat():
             res = requests.post(url, json=payload, headers=headers, timeout=60)
             if res.status_code == 200:
                 try:
-                    res_json = res.json()
                     # Format standard response object
-                    if isinstance(res_json, dict):
-                        if "response" in res_json:
-                            return jsonify(res_json)
-                        elif "output" in res_json:
-                            return jsonify({"response": res_json["output"]})
-                        elif "text" in res_json:
-                            return jsonify({"response": res_json["text"]})
-                        return jsonify({"response": str(res_json)})
-                    elif isinstance(res_json, list) and len(res_json) > 0:
-                        first = res_json[0]
-                        if isinstance(first, dict):
-                            val = first.get("response") or first.get("output") or first.get("text")
-                            if val:
-                                return jsonify({"response": val})
-                        return jsonify({"response": str(first)})
-                    return jsonify({"response": str(res_json)})
+                    return jsonify(extract_n8n_payload(res.json()))
                 except Exception:
                     return jsonify({"response": res.text})
             elif res.status_code == 404:
@@ -72,10 +91,11 @@ def chat():
     return jsonify({
         "response": f"⚠️ <b>Webhook n8n Belum Menerima Data:</b><br>{last_err}<br><br>"
                     f"💡 <b>Langkah Aktivasi di n8n:</b><br>"
-                    f"1. Buka n8n di <a href='http://localhost:5678' target='_blank' style='color:#38bdf8;'>http://localhost:5678</a><br>"
+                    f"1. Buka n8n di <a href='{N8N_BASE_URL}' target='_blank' style='color:#38bdf8;'>{N8N_BASE_URL}</a><br>"
                     f"2. Buka workflow chatbot, lalu klik toggle <b>Active = ON</b> di kanan atas (atau klik tombol <b>Test step</b> pada Webhook untuk mode pengujian).",
         "error": True
     })
+
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5001))

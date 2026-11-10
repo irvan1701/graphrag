@@ -2,7 +2,9 @@ import os
 import re
 import json
 import glob
+import logging
 import argparse
+from datetime import datetime, timezone
 from urllib.parse import urlparse
 try:
     from neo4j import GraphDatabase
@@ -12,6 +14,17 @@ try:
     import openpyxl
 except ImportError:
     openpyxl = None
+
+LOG_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "etl_sync.log")
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler(LOG_FILE, encoding="utf-8")
+    ]
+)
+logger = logging.getLogger("upj_kg_etl")
 
 FACULTY_MAP = {
     "inf": {"code": "FTD", "faculty": "Fakultas Teknologi dan Desain", "name": "Informatika"},
@@ -114,14 +127,73 @@ def parse_courses(content, prodi_code):
                 
     return courses
 
-def parse_prodi_details(pages, prodi_key):
+def clean_career_label(raw_item):
+    """Normalizes regex-extracted career strings by stripping sentence fragments."""
+    s = clean_text(raw_item)
+    prefixes = [
+        r'^(?:such\s+as\s+becoming|or\s+even|or|atau|becoming|become\s+a|menjadi|sebagai|creating)\s+',
+        r'^(?:drive\s+innovation\s+as\s+a|turn\s+data\s+into\s+insights\s+as\s+a)\s+',
+        r'^(?:menggerakkan\s+inovasi\s+sebagai|ubah\s+data\s+menjadi\s+wawasan\s+sebagai)\s+',
+        r'^(?:graduates\s+of\s+upj|where\s+future|career\s+opportunities\s+for\s+upj|as\s+a\s+upj)\s+',
+        r'^(?:upj\s+ppar\s+graduates\s+are\s+prepared\s+to\s+become\s+young)\s+',
+        r'^(?:able\s+to\s+work\s+in|collaborating\s+with|capable\s+of\s+building\s+independent\s+ventures\s+in)\s+',
+        r'^(?:based)\s+'
+    ]
+    changed = True
+    while changed:
+        changed = False
+        for pat in prefixes:
+            ns = re.sub(pat, '', s, flags=re.IGNORECASE).strip(" .,-:;")
+            if ns != s:
+                s = ns
+                changed = True
+    low = s.lower()
+    if low in {'designer', 'architect', 'entrepreneur', 'civil engineer', ''}:
+        return ""
+    if len(s) < 4 or low.startswith(('career opportunities', 'where future')):
+        return ""
+    return s[0].upper() + s[1:] if s and s[0].islower() else s
+
+def is_valid_facility_line(line):
+    """Filters pagination counters, page headers, and news/event headlines from scraped facilities."""
+    l = clean_text(line)
+    if not l or len(l) < 3 or len(l) > 65:
+        return False
+    low = l.lower()
+    if low in {'facilities', 'contact us', 'pmb'} or '::' in l:
+        return False
+    if re.match(r'^\d+\s*/\s*\d+$', l):
+        return False
+    noise_markers = [
+        'leadership training', 'public lecture', 'participants of',
+        'collaboration with', 'welcome address', 'see more', 'read more',
+        'workshop batch', 'seminar', 'kegiatan', 'berita'
+    ]
+    if any(m in low for m in noise_markers):
+        return False
+    return True
+
+def resolve_prodi_codes(prodi_label):
+    """Maps PMB labels like 'Desain Komunikasi Visual (DKV)' or 'Informatika & Sistem Informasi' to codes."""
+    if not prodi_label:
+        return []
+    low = prodi_label.lower()
+    if 'semua prodi' in low:
+        return [k.upper() for k in FACULTY_MAP.keys()]
+    matched = []
+    for code, meta in FACULTY_MAP.items():
+        if meta["name"].lower() in low or re.search(rf'\b{re.escape(code)}\b', low):
+            matched.append(code.upper())
+    return sorted(set(matched))
+
+def parse_prodi_details(pages, prodi_key, anonymize_alumni=True):
     info = FACULTY_MAP.get(prodi_key, {"code": "FTD", "faculty": "Fakultas Teknologi dan Desain", "name": prodi_key.upper()})
     prodi_data = {
         "code": prodi_key.upper(),
         "name": info["name"],
         "faculty": info["faculty"],
         "faculty_code": info["code"],
-        "degree": "",
+        "degree": "Professional Architect Education (PPAr)" if prodi_key == "ppar" else "",
         "duration": "3.5 Years / 7 Semester",
         "vision": "",
         "mission": "",
@@ -132,24 +204,27 @@ def parse_prodi_details(pages, prodi_key):
         "facilities": [],
         "alumni": []
     }
-    
+
+    seen_careers_low = set()
+    seen_alumni = set()
     for p in pages:
         content = p.get("content", "")
         url = p.get("url", "")
-        
-        degree_match = re.search(r'(Bachelor of [^\n\r]+(?:\([A-Za-z\.]+\))?)', content)
-        if degree_match and not prodi_data["degree"]:
-            prodi_data["degree"] = degree_match.group(1).strip()
-            
+
+        if prodi_key != "ppar":
+            degree_match = re.search(r'(Bachelor of [A-Za-z &]+(?:\([A-Za-z\.]+\))?)', content)
+            if degree_match and not prodi_data["degree"] and len(degree_match.group(1).strip()) <= 80:
+                prodi_data["degree"] = degree_match.group(1).strip()
+
         dur_match = re.search(r'(\d+(?:\.\d+)?\s*(?:Years|Tahun)\s*/\s*\d+\s*(?:Semester|Semesters))', content)
         if dur_match:
             prodi_data["duration"] = dur_match.group(1).strip()
-            
+
         if url.rstrip('/') == f"https://{prodi_key}.upj.ac.id" or url.endswith(f"{prodi_key}.upj.ac.id/"):
             desc_match = re.search(r'(?:The \w+ Department[^\n]+See More\s*)([^\n]+)', content)
             if desc_match:
                 prodi_data["description"] = desc_match.group(1).strip()
-                
+
         if 'profile' in url or 'static-page' in url:
             if "Vision" in content and "Mision" in content:
                 vis_match = re.search(r'Vision\s*\n+([^\n]+)', content)
@@ -158,36 +233,46 @@ def parse_prodi_details(pages, prodi_key):
                 mis_match = re.search(r'Mision\s*\n+([\s\S]+?)(?:Objective|Strategy|Targets|Contact Us|$)', content)
                 if mis_match:
                     prodi_data["mission"] = mis_match.group(1).strip()
-                    
+
         if "Future Career" in content or "Karir masa depan" in content or "Career Prospects" in content:
-            career_sec = re.search(r'(?:Future Career|Karir masa depan|Career Prospects)[^\n]*\n([\s\S]+?)(?:Alumni|Cerita Alumni|Join|Contact Us|«|$)', content)
+            career_sec = re.search(r'(?:Future Career|Karir masa depan|Career Prospects)[^\n]*\n([\s\S]+?)(?:Alumni|Cerita Alumni|Join|Contact Us|\u00ab|$)', content)
             if career_sec:
                 sec_text = career_sec.group(1)
-                items = re.findall(r'(?:[-•]\s*|\b(?:Become a|Menjadi|sebagai)\s+)?([A-Za-z0-9 &\(\)/]+(?:Engineer|Developer|Analyst|Consultant|Specialist|Manager|Auditor|Accountant|Architect|Designer|Entrepreneur))', sec_text, re.IGNORECASE)
+                items = re.findall(r'(?:[-\u2022]\s*|\b(?:Become a|Menjadi|sebagai)\s+)?([A-Za-z0-9 &\(\)/]+(?:Engineer|Developer|Analyst|Consultant|Specialist|Manager|Auditor|Accountant|Architect|Designer|Entrepreneur))', sec_text, re.IGNORECASE)
                 for item in items:
-                    clean_item = item.strip()
-                    if clean_item and len(clean_item) > 3 and clean_item not in prodi_data["career_paths"]:
+                    clean_item = clean_career_label(item)
+                    if clean_item and clean_item.lower() not in seen_careers_low:
+                        seen_careers_low.add(clean_item.lower())
                         prodi_data["career_paths"].append(clean_item)
-                        
+
         if 'facilities' in url:
             fac_lines = [l.strip() for l in content.split('\n') if l.strip()]
             for l in fac_lines:
-                if l in ['Facilities', 'Contact Us', 'PMB', '1 / 6', '1 / 2'] or len(l) < 3 or len(l) > 60:
+                if not is_valid_facility_line(l):
                     continue
                 if l not in prodi_data["facilities"]:
                     prodi_data["facilities"].append(l)
-                    
+
         if "Alumni Testimonials" in content or "Cerita Alumni" in content or "Alumni Stories" in content:
-            alumni_sec = re.search(r'(?:Alumni Testimonials|Cerita Alumni|Alumni Stories)\n([\s\S]+?)(?:Contact Us|PMB|«|$)', content)
+            alumni_sec = re.search(r'(?:Alumni Testimonials|Cerita Alumni|Alumni Stories)\n([\s\S]+?)(?:Contact Us|PMB|\u00ab|$)', content)
             if alumni_sec:
                 a_text = alumni_sec.group(1)
                 a_matches = re.findall(r'([A-Z][a-zA-Z\s]+,\s*S\.[A-Za-z\.]+)\n+([^\n]+)', a_text)
-                for name, role in a_matches:
-                    prodi_data["alumni"].append({
-                        "name": name.strip(),
-                        "role": role.strip()
-                    })
-                    
+                for raw_name, role in a_matches:
+                    norm_name = clean_text(raw_name.replace("\n", " "))
+                    norm_role = clean_text(role)
+                    if re.search(r',\s*(?:S|M|Dr|Ir)\.[A-Za-z\.]+$', norm_role) or norm_role.lower() == norm_name.lower():
+                        norm_role = "Alumni Program Studi"
+                    dedup_key = (norm_name.lower(), norm_role.lower())
+                    if dedup_key in seen_alumni:
+                        continue
+                    seen_alumni.add(dedup_key)
+                    if anonymize_alumni:
+                        anon_id = f"Alumni_{prodi_key.upper()}_{len(prodi_data['alumni']) + 1:02d}"
+                        prodi_data["alumni"].append({"name": anon_id, "role": norm_role})
+                    else:
+                        prodi_data["alumni"].append({"name": norm_name, "role": norm_role})
+
     return prodi_data
 
 def parse_tracer_study(file_path):
@@ -317,7 +402,12 @@ def parse_tracer_study(file_path):
                 "lingkup_nasional": lk_nasional,
                 "persen_lingkup_nasional": pct_nasional,
                 "lingkup_multinasional": lk_multi,
-                "persen_lingkup_multinasional": pct_multi
+                "persen_lingkup_multinasional": pct_multi,
+                "is_suppressed": jml_terlacak < 5,
+                "suppress_wt_lt_6": 0 < wt_lt_6 < 5,
+                "suppress_selaras": 0 < kes_selaras < 5,
+                "suppress_nasional": 0 < lk_nasional < 5,
+                "suppress_multinasional": 0 < lk_multi < 5
             })
 
         summary_selaras = sum_kes_sangat + sum_kes_erat
@@ -358,7 +448,7 @@ def parse_tracer_study(file_path):
         "summaries": summaries
     }
 
-def extract_all_data(data_dir="."):
+def extract_all_data(data_dir=".", anonymize_alumni=True):
     candidate_dirs = [data_dir, os.path.join(data_dir, "data"), "data", "."]
     actual_dir = data_dir
     files = []
@@ -403,7 +493,7 @@ def extract_all_data(data_dir="."):
         with open(f, 'r', encoding='utf-8') as fp:
             pages = json.load(fp)
             
-        prodi_info = parse_prodi_details(pages, key)
+        prodi_info = parse_prodi_details(pages, key, anonymize_alumni=anonymize_alumni)
         all_prodi.append(prodi_info)
         
         for p in pages:
@@ -424,6 +514,17 @@ def extract_all_data(data_dir="."):
                 all_lecturers.extend(parse_lecturers(content, prodi_code))
             if "courses" in url:
                 all_courses.extend(parse_courses(content, prodi_code))
+
+    # Enrich facilities from official PMB laboratorium metadata so no S1 prodi has empty facilities
+    if pmb_data and pmb_data.get("fasilitas_laboratorium"):
+        prodi_by_code = {p["code"]: p for p in all_prodi}
+        for fac in pmb_data["fasilitas_laboratorium"]:
+            fac_name = fac.get("nama", "").strip()
+            if not fac_name:
+                continue
+            for p_code in resolve_prodi_codes(fac.get("prodi", "")):
+                if p_code in prodi_by_code and fac_name not in prodi_by_code[p_code]["facilities"]:
+                    prodi_by_code[p_code]["facilities"].append(fac_name)
 
     # Load Tracer Study if available
     tracer_candidates = [
@@ -473,22 +574,37 @@ def populate_neo4j(data, uri="bolt://localhost:7687", user="neo4j", password="pa
             except Exception as e:
                 print(f"Constraint notice: {e}")
                 
+        snapshot_version = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        pmb_meta = data.get("pmb", {})
+        potongan_json = json.dumps(pmb_meta.get("biaya_kuliah", {}).get("potongan_uang_masuk", []), ensure_ascii=False)
+        jalur_summary = json.dumps([
+            {"title": j.get("title", ""), "persyaratan": j.get("persyaratan", [])}
+            for j in pmb_meta.get("jalur_pendaftaran", [])
+        ], ensure_ascii=False)
+
         # University & Faculties
-        print("Ingesting University and Faculties...")
+        logger.info("Ingesting University and Faculties (snapshot %s)...", snapshot_version)
         session.run("""
         MERGE (u:University {code: 'UPJ'})
-        ON CREATE SET u.name = 'Universitas Pembangunan Jaya', 
-                      u.website = 'https://upj.ac.id',
-                      u.pmb_website = 'https://pmb.upj.ac.id',
-                      u.living_lab = 'Grup Pembangunan Jaya (17 unit usaha)',
-                      u.tagline = 'Mendidik Manusia Jaya yang Berintegritas, Profesional, dan Berjiwa Entrepreneur'
+        SET u.name = 'Universitas Pembangunan Jaya',
+            u.website = 'https://upj.ac.id',
+            u.pmb_website = 'https://pmb.upj.ac.id',
+            u.living_lab = 'Grup Pembangunan Jaya (17 unit usaha)',
+            u.tagline = 'Mendidik Manusia Jaya yang Berintegritas, Profesional, dan Berjiwa Entrepreneur',
+            u.snapshot_version = $snapshot_version,
+            u.potongan_uang_masuk_json = $potongan_json,
+            u.jalur_pendaftaran_json = $jalur_summary
         MERGE (ftd:Faculty {code: 'FTD'})
         ON CREATE SET ftd.name = 'Fakultas Teknologi dan Desain'
         MERGE (fhb:Faculty {code: 'FHB'})
         ON CREATE SET fhb.name = 'Fakultas Humaniora dan Bisnis'
         MERGE (u)-[:HAS_FACULTY]->(ftd)
         MERGE (u)-[:HAS_FACULTY]->(fhb)
-        """)
+        """, {
+            "snapshot_version": snapshot_version,
+            "potongan_json": potongan_json,
+            "jalur_summary": jalur_summary
+        })
         
         # Ingest Program Studi
         print(f"Ingesting {len(data['prodi'])} Program Studi...")
@@ -558,27 +674,28 @@ def populate_neo4j(data, uri="bolt://localhost:7687", user="neo4j", password="pa
         pmb = data.get("pmb", {})
         if pmb:
             print("Ingesting PMB Tuition Fees & Scholarships...")
-            # Biaya SPP & SKS per prodi
+            # Biaya SPP & SKS per prodi (matched by resolved prodi codes)
             biaya_list = pmb.get("biaya_kuliah", {}).get("tabel_spp_sks_semester_1", [])
             for bk in biaya_list:
                 if not isinstance(bk, dict) or not bk.get("prodi"):
                     continue
-                session.run("""
-                MATCH (prodi:ProgramStudi)
-                WHERE toLower(prodi.name) CONTAINS toLower($p_name) OR toLower($p_name) CONTAINS toLower(prodi.name)
-                MERGE (b:BiayaKuliah {prodi: $p_name})
-                SET b.spp = $spp,
-                    b.sks_kelas = $sks_kelas,
-                    b.sks_praktik = $sks_praktik,
-                    b.total_semester_1 = $total_sem_1
-                MERGE (prodi)-[:HAS_TUITION_FEE]->(b)
-                """, {
-                    "p_name":      bk.get("prodi", ""),
-                    "spp":         bk.get("spp", ""),
-                    "sks_kelas":   bk.get("sks_kelas", ""),
-                    "sks_praktik": bk.get("sks_praktik", ""),
-                    "total_sem_1": bk.get("total_sem_1", "")
-                })
+                for p_code in resolve_prodi_codes(bk.get("prodi", "")):
+                    session.run("""
+                    MATCH (prodi:ProgramStudi {code: $p_code})
+                    MERGE (b:BiayaKuliah {prodi: $p_name})
+                    SET b.spp = $spp,
+                        b.sks_kelas = $sks_kelas,
+                        b.sks_praktik = $sks_praktik,
+                        b.total_semester_1 = $total_sem_1
+                    MERGE (prodi)-[:HAS_TUITION_FEE]->(b)
+                    """, {
+                        "p_code":      p_code,
+                        "p_name":      bk.get("prodi", ""),
+                        "spp":         bk.get("spp", ""),
+                        "sks_kelas":   bk.get("sks_kelas", ""),
+                        "sks_praktik": bk.get("sks_praktik", ""),
+                        "total_sem_1": bk.get("total_sem_1", "")
+                    })
                 
             # Beasiswa
             for b in pmb.get("beasiswa", []):
@@ -591,38 +708,37 @@ def populate_neo4j(data, uri="bolt://localhost:7687", user="neo4j", password="pa
                 MERGE (u)-[:OFFERS_SCHOLARSHIP]->(bs)
                 """, {"nama": b.get("nama", ""), "syarat": b.get("syarat", "")})
                 
-            # Peminatan / Konsentrasi
+            # Peminatan / Konsentrasi (fixes DKV/DP suffix mismatch)
             for pem in pmb.get("peminatan_konsentrasi", []):
                 p_name = pem.get("prodi", "")
-                if not p_name:
-                    continue
-                for p_item in pem.get("peminatan", []):
-                    if not isinstance(p_item, str) or not p_item.strip():
-                        continue
-                    session.run("""
-                    MATCH (prodi:ProgramStudi)
-                    WHERE toLower(prodi.name) CONTAINS toLower($p_name)
-                    MERGE (sp:Peminatan {name: $p_item, prodi_code: prodi.code})
-                    SET sp.waktu_pemilihan = $waktu
-                    MERGE (prodi)-[:HAS_SPECIALIZATION]->(sp)
-                    """, {"p_name": p_name, "p_item": p_item.strip(), "waktu": pem.get("waktu_pemilihan", "Semester 5")})
+                for p_code in resolve_prodi_codes(p_name):
+                    for p_item in pem.get("peminatan", []):
+                        if not isinstance(p_item, str) or not p_item.strip():
+                            continue
+                        session.run("""
+                        MATCH (prodi:ProgramStudi {code: $p_code})
+                        MERGE (sp:Peminatan {name: $p_item, prodi_code: prodi.code})
+                        SET sp.waktu_pemilihan = $waktu
+                        MERGE (prodi)-[:HAS_SPECIALIZATION]->(sp)
+                        """, {"p_code": p_code, "p_item": p_item.strip(), "waktu": pem.get("waktu_pemilihan", "Semester 5")})
                     
-            # Syarat Khusus Masuk
+            # Syarat Khusus Masuk (fixes DKV, DP, and combined 'Informatika & Sistem Informasi')
             for sk in pmb.get("syarat_khusus_prodi", []):
                 if not isinstance(sk, dict) or not sk.get("prodi"):
                     continue
-                session.run("""
-                MATCH (prodi:ProgramStudi)
-                WHERE toLower(prodi.name) CONTAINS toLower($p_name)
-                MERGE (req:SyaratKhusus {prodi: $p_name})
-                SET req.syarat_khusus = $syarat_khusus,
-                    req.latar_belakang = $latar_belakang
-                MERGE (prodi)-[:HAS_REQUIREMENT]->(req)
-                """, {
-                    "p_name":        sk.get("prodi", ""),
-                    "syarat_khusus": sk.get("syarat_khusus", ""),
-                    "latar_belakang": sk.get("latar_belakang", "")
-                })
+                for p_code in resolve_prodi_codes(sk.get("prodi", "")):
+                    session.run("""
+                    MATCH (prodi:ProgramStudi {code: $p_code})
+                    MERGE (req:SyaratKhusus {prodi: $p_name})
+                    SET req.syarat_khusus = $syarat_khusus,
+                        req.latar_belakang = $latar_belakang
+                    MERGE (prodi)-[:HAS_REQUIREMENT]->(req)
+                    """, {
+                        "p_code":         p_code,
+                        "p_name":         sk.get("prodi", ""),
+                        "syarat_khusus":  sk.get("syarat_khusus", ""),
+                        "latar_belakang": sk.get("latar_belakang", "")
+                    })
                 
             # FAQ
             for f_item in pmb.get("faq", []):
@@ -724,7 +840,12 @@ def populate_neo4j(data, uri="bolt://localhost:7687", user="neo4j", password="pa
                     ts.lingkup_nasional = $lingkup_nasional,
                     ts.persen_lingkup_nasional = $persen_lingkup_nasional,
                     ts.lingkup_multinasional = $lingkup_multinasional,
-                    ts.persen_lingkup_multinasional = $persen_lingkup_multinasional
+                    ts.persen_lingkup_multinasional = $persen_lingkup_multinasional,
+                    ts.is_suppressed = $is_suppressed,
+                    ts.suppress_wt_lt_6 = $suppress_wt_lt_6,
+                    ts.suppress_selaras = $suppress_selaras,
+                    ts.suppress_nasional = $suppress_nasional,
+                    ts.suppress_multinasional = $suppress_multinasional
                 MERGE (prodi)-[:HAS_TRACER_STUDY]->(ts)
                 WITH ts, $lingkup_multinasional AS multi, $lingkup_nasional AS nas, $lingkup_lokal AS lok,
                      $persen_lingkup_multinasional AS p_multi, $persen_lingkup_nasional AS p_nas
@@ -764,7 +885,7 @@ def populate_neo4j(data, uri="bolt://localhost:7687", user="neo4j", password="pa
             """)
         
     driver.close()
-    print("Graph ingestion complete!")
+    logger.info("Graph ingestion complete!")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Populate Neo4j Graph from Scraped UPJ JSON files and Tracer Study")
@@ -775,10 +896,11 @@ if __name__ == "__main__":
     parser.add_argument("--only-tracer", action="store_true", help="Only parse and ingest tracer study data")
     parser.add_argument("--dry-run", action="store_true", help="Parse and output preview without connecting to Neo4j")
     parser.add_argument("--preview-file", default="graph_preview.json", help="Path to write JSON preview")
+    parser.add_argument("--include-alumni-names", action="store_true", help="Include raw public alumni testimonial names instead of anonymized IDs")
     args = parser.parse_args()
     
     if args.only_tracer:
-        print("Parsing ONLY Tracer Study...")
+        logger.info("Parsing ONLY Tracer Study...")
         tracer_candidates = [
             os.path.join(args.data_dir, "tracer study.xlsx"),
             os.path.join("data", "tracer study.xlsx"),
@@ -787,7 +909,7 @@ if __name__ == "__main__":
         t_data = {"cohorts": [], "summaries": []}
         for t_path in tracer_candidates:
             if os.path.exists(t_path):
-                print(f"Loading Tracer Study from {t_path}...")
+                logger.info("Loading Tracer Study from %s...", t_path)
                 t_data = parse_tracer_study(t_path)
                 break
         extracted = {
@@ -799,24 +921,29 @@ if __name__ == "__main__":
             "tracer_study": t_data
         }
     else:
-        print(f"Parsing scraped data and tracer study from '{args.data_dir}'...")
-        extracted = extract_all_data(args.data_dir)
+        logger.info("Parsing scraped data and tracer study from '%s'...", args.data_dir)
+        extracted = extract_all_data(args.data_dir, anonymize_alumni=not args.include_alumni_names)
 
-    print(f"Parsed summary:")
-    print(f" - {len(extracted['prodi'])} Program Studi")
-    print(f" - {len(extracted['lecturers'])} Dosen/Lecturers")
-    print(f" - {len(extracted['courses'])} Mata Kuliah/Courses")
-    print(f" - {len(extracted['pages'])} Web Pages")
+    logger.info("Parsed summary:")
+    logger.info(" - %d Program Studi", len(extracted["prodi"]))
+    logger.info(" - %d Dosen/Lecturers", len(extracted["lecturers"]))
+    logger.info(" - %d Mata Kuliah/Courses", len(extracted["courses"]))
+    logger.info(" - %d Web Pages", len(extracted["pages"]))
     if extracted.get("pmb"):
-        print(f" - PMB Data loaded: Biaya Kuliah, Beasiswa ({len(extracted['pmb'].get('beasiswa', []))}), Peminatan ({len(extracted['pmb'].get('peminatan_konsentrasi', []))}), FAQ ({len(extracted['pmb'].get('faq', []))})")
+        logger.info(
+            " - PMB Data loaded: Biaya Kuliah, Beasiswa (%d), Peminatan (%d), FAQ (%d)",
+            len(extracted["pmb"].get("beasiswa", [])),
+            len(extracted["pmb"].get("peminatan_konsentrasi", [])),
+            len(extracted["pmb"].get("faq", []))
+        )
     if extracted.get("tracer_study"):
         ts_c = len(extracted["tracer_study"].get("cohorts", []))
         ts_s = len(extracted["tracer_study"].get("summaries", []))
-        print(f" - Tracer Study Data loaded: {ts_c} cohort records across 10 prodi, {ts_s} annual summaries (2022-2024)")
+        logger.info(" - Tracer Study Data loaded: %d cohort records across 10 prodi, %d annual summaries (2022-2024)", ts_c, ts_s)
     
     if args.dry_run:
         with open(args.preview_file, "w", encoding="utf-8") as fp:
             json.dump(extracted, fp, indent=2, ensure_ascii=False)
-        print(f"Dry run preview saved to {args.preview_file}")
+        logger.info("Dry run preview saved to %s", args.preview_file)
     else:
         populate_neo4j(extracted, uri=args.uri, user=args.user, password=args.password)

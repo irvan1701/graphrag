@@ -1,0 +1,9 @@
+2026-11-10 18:36:54,255 [INFO] Parsing scraped data and tracer study from 'data'...
+2026-11-10 18:36:54,575 [INFO] Parsed summary:
+2026-11-10 18:36:54,575 [INFO]  - 11 Program Studi
+2026-11-10 18:36:54,575 [INFO]  - 101 Dosen/Lecturers
+2026-11-10 18:36:54,575 [INFO]  - 924 Mata Kuliah/Courses
+2026-11-10 18:36:54,575 [INFO]  - 473 Web Pages
+2026-11-10 18:36:54,575 [INFO]  - PMB Data loaded: Biaya Kuliah, Beasiswa (9), Peminatan (10), FAQ (6)
+2026-11-10 18:36:54,575 [INFO]  - Tracer Study Data loaded: 30 cohort records across 10 prodi, 3 annual summaries (2022-2024)
+2026-11-10 18:36:54,594 [INFO] Dry run preview saved to data/graph_preview.json

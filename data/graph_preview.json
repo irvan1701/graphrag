@@ -23,167 +23,35 @@
         "Pengajar dan entrepreneur"
       ],
       "facilities": [
-        "Facilities :: Universitas Pembangunan Jaya (UPJ)",
         "Audio Visual Lab",
         "Photography lab",
         "Computer Lab",
-        "1 / 3"
+        "Living Laboratory Jaya Group",
+        "Laboratorium Komputer & iMac Studio"
       ],
       "alumni": [
         {
-          "name": "Camila, S.Ds.",
+          "name": "Alumni_DKV_01",
           "role": "INDDEX 6 2023 Gold Medalist"
         },
         {
-          "name": "Ivan Johannes, S.Ds.",
+          "name": "Alumni_DKV_02",
           "role": "Graphic Designer at Forta Larese"
         },
         {
-          "name": "Sherine Sevilla Johannes, S.Ds.",
+          "name": "Alumni_DKV_03",
           "role": "Jr. Creative Designer at Sirclo"
         },
         {
-          "name": "Camila, S.Ds.",
-          "role": "INDDEX 6 2023 Gold Medalist"
-        },
-        {
-          "name": "Ivan Johannes, S.Ds.",
-          "role": "Graphic Designer at Forta Larese"
-        },
-        {
-          "name": "Sherine Sevilla Johannes, S.Ds.",
-          "role": "Jr. Creative Designer at Sirclo"
-        },
-        {
-          "name": "Camila, S.Ds.",
-          "role": "INDDEX 6 2023 Gold Medalist"
-        },
-        {
-          "name": "Ivan Johannes, S.Ds.",
-          "role": "Graphic Designer at Forta Larese"
-        },
-        {
-          "name": "Sherine Sevilla Johannes, S.Ds.",
-          "role": "Jr. Creative Designer at Sirclo"
-        },
-        {
-          "name": "Camila, S.Ds.",
-          "role": "INDDEX 6 2023 Gold Medalist"
-        },
-        {
-          "name": "Ivan Johannes, S.Ds.",
-          "role": "Graphic Designer at Forta Larese"
-        },
-        {
-          "name": "Sherine Sevilla Johannes, S.Ds.",
-          "role": "Jr. Creative Designer at Sirclo"
-        },
-        {
-          "name": "Camila, S.Ds.",
-          "role": "INDDEX 6 2023 Gold Medalist"
-        },
-        {
-          "name": "Ivan Johannes, S.Ds.",
-          "role": "Graphic Designer at Forta Larese"
-        },
-        {
-          "name": "Sherine Sevilla Johannes, S.Ds.",
-          "role": "Jr. Creative Designer at Sirclo"
-        },
-        {
-          "name": "Camila, S.Ds.",
+          "name": "Alumni_DKV_04",
           "role": "Peraih Medali Emas INDDEX 6 2023"
         },
         {
-          "name": "Ivan Johannes, S.Ds.",
+          "name": "Alumni_DKV_05",
           "role": "Graphic Designer di Forta Larese"
         },
         {
-          "name": "Sherine Sevilla Johannes, S.Ds.",
-          "role": "Jr. Creative Designer di Sirclo"
-        },
-        {
-          "name": "Camila, S.Ds.",
-          "role": "Peraih Medali Emas INDDEX 6 2023"
-        },
-        {
-          "name": "Ivan Johannes, S.Ds.",
-          "role": "Graphic Designer di Forta Larese"
-        },
-        {
-          "name": "Sherine Sevilla Johannes, S.Ds.",
-          "role": "Jr. Creative Designer di Sirclo"
-        },
-        {
-          "name": "Camila, S.Ds.",
-          "role": "Peraih Medali Emas INDDEX 6 2023"
-        },
-        {
-          "name": "Ivan Johannes, S.Ds.",
-          "role": "Graphic Designer di Forta Larese"
-        },
-        {
-          "name": "Sherine Sevilla Johannes, S.Ds.",
-          "role": "Jr. Creative Designer di Sirclo"
-        },
-        {
-          "name": "Camila, S.Ds.",
-          "role": "Peraih Medali Emas INDDEX 6 2023"
-        },
-        {
-          "name": "Ivan Johannes, S.Ds.",
-          "role": "Graphic Designer di Forta Larese"
-        },
-        {
-          "name": "Sherine Sevilla Johannes, S.Ds.",
-          "role": "Jr. Creative Designer di Sirclo"
-        },
-        {
-          "name": "Camila, S.Ds.",
-          "role": "Peraih Medali Emas INDDEX 6 2023"
-        },
-        {
-          "name": "Ivan Johannes, S.Ds.",
-          "role": "Graphic Designer di Forta Larese"
-        },
-        {
-          "name": "Sherine Sevilla Johannes, S.Ds.",
-          "role": "Jr. Creative Designer di Sirclo"
-        },
-        {
-          "name": "Camila, S.Ds.",
-          "role": "Peraih Medali Emas INDDEX 6 2023"
-        },
-        {
-          "name": "Ivan Johannes, S.Ds.",
-          "role": "Graphic Designer di Forta Larese"
-        },
-        {
-          "name": "Sherine Sevilla Johannes, S.Ds.",
-          "role": "Jr. Creative Designer di Sirclo"
-        },
-        {
-          "name": "Camila, S.Ds.",
-          "role": "Peraih Medali Emas INDDEX 6 2023"
-        },
-        {
-          "name": "Ivan Johannes, S.Ds.",
-          "role": "Graphic Designer di Forta Larese"
-        },
-        {
-          "name": "Sherine Sevilla Johannes, S.Ds.",
-          "role": "Jr. Creative Designer di Sirclo"
-        },
-        {
-          "name": "Camila, S.Ds.",
-          "role": "Peraih Medali Emas INDDEX 6 2023"
-        },
-        {
-          "name": "Ivan Johannes, S.Ds.",
-          "role": "Graphic Designer di Forta Larese"
-        },
-        {
-          "name": "Sherine Sevilla Johannes, S.Ds.",
+          "name": "Alumni_DKV_06",
           "role": "Jr. Creative Designer di Sirclo"
         }
       ]
@@ -201,49 +69,29 @@
       "akreditasi": "Baik Sekali",
       "url": "https://akt.upj.ac.id/",
       "career_paths": [
-        "such as becoming Public Accountant",
+        "Public Accountant",
         "Tax Consultant",
         "Auditor",
         "Financial Analyst",
-        "Financial Manager",
-        "or even entrepreneur"
+        "Financial Manager"
       ],
       "facilities": [
-        "Facilities :: Universitas Pembangunan Jaya (UPJ)",
-        "Computer Lab"
+        "Computer Lab",
+        "Living Laboratory Jaya Group",
+        "Tax Center Laboratory"
       ],
       "alumni": [
         {
-          "name": "Gaudensia Catherine,\nS.Ak",
+          "name": "Alumni_AKT_01",
           "role": "Accounting, Class of 2015, Auditor at Grant Thornton Indonesia."
         },
         {
-          "name": "Malva Marcella Sitorus, S.Ak",
+          "name": "Alumni_AKT_02",
           "role": "Internal Auditor - PT Erajaya Swasembada Tbk"
         },
         {
-          "name": "Gaudensia Catherine,\nS.Ak",
-          "role": "Accounting, Class of 2015, Auditor at Grant Thornton Indonesia."
-        },
-        {
-          "name": "Malva Marcella Sitorus, S.Ak",
-          "role": "Internal Auditor - PT Erajaya Swasembada Tbk"
-        },
-        {
-          "name": "Gaudensia Catherine,\nS.Ak",
+          "name": "Alumni_AKT_03",
           "role": "Akuntansi, Angkatan 2015 ,Auditor di Grant Thornton Indonesia"
-        },
-        {
-          "name": "Malva Marcella Sitorus, S.Ak",
-          "role": "Internal Auditor - PT Erajaya Swasembada Tbk"
-        },
-        {
-          "name": "Gaudensia Catherine,\nS.Ak",
-          "role": "Akuntansi, Angkatan 2015 ,Auditor di Grant Thornton Indonesia"
-        },
-        {
-          "name": "Malva Marcella Sitorus, S.Ak",
-          "role": "Internal Auditor - PT Erajaya Swasembada Tbk"
         }
       ]
     },
@@ -260,67 +108,21 @@
       "akreditasi": "Baik Sekali",
       "url": "https://ars.upj.ac.id/",
       "career_paths": [
-        "Career Opportunities for UPJ Architect",
-        "As a UPJ Architect",
         "Professional Architect",
-        "Pengembang Properti & Urban Designer",
-        "Where Future Architect"
+        "Pengembang Properti & Urban Designer"
       ],
       "facilities": [
-        "Facilities :: Universitas Pembangunan Jaya (UPJ)"
+        "Living Laboratory Jaya Group",
+        "Studio Gambar & Arsitektur"
       ],
       "alumni": [
         {
-          "name": "ARIMBI ALESSANDRA NARO, S.Ars.",
+          "name": "Alumni_ARS_01",
           "role": "Magister Program, Columbia University"
         },
         {
-          "name": "ARIMBI ALESSANDRA NARO, S.Ars.",
-          "role": "Magister Program, Columbia University"
-        },
-        {
-          "name": "ARIMBI ALESSANDRA NARO, S.Ars.",
-          "role": "Magister Program, Columbia University"
-        },
-        {
-          "name": "ARIMBI ALESSANDRA NARO, S.Ars.",
-          "role": "Magister Program, Columbia University"
-        },
-        {
-          "name": "ARIMBI ALESSANDRA NARO, S.Ars.",
-          "role": "Magister Program, Columbia University"
-        },
-        {
-          "name": "ARIMBI ALESSANDRA NARO, S.Ars.",
-          "role": "Magister Program, Columbia University"
-        },
-        {
-          "name": "THOMAS LIENTINO, S.Ars.",
-          "role": "THOMAS LIENTINO, S.Ars."
-        },
-        {
-          "name": "ARIMBI ALESSANDRA NARO, S.Ars.",
-          "role": "Magister Program, Columbia University"
-        },
-        {
-          "name": "THOMAS LIENTINO, S.Ars.",
-          "role": "THOMAS LIENTINO, S.Ars."
-        },
-        {
-          "name": "ARIMBI ALESSANDRA NARO, S.Ars.",
-          "role": "Magister Program, Columbia University"
-        },
-        {
-          "name": "THOMAS LIENTINO, S.Ars.",
-          "role": "THOMAS LIENTINO, S.Ars."
-        },
-        {
-          "name": "ARIMBI ALESSANDRA NARO, S.Ars.",
-          "role": "Magister Program, Columbia University"
-        },
-        {
-          "name": "THOMAS LIENTINO, S.Ars.",
-          "role": "THOMAS LIENTINO, S.Ars."
+          "name": "Alumni_ARS_02",
+          "role": "Alumni Program Studi"
         }
       ]
     },
@@ -341,100 +143,31 @@
         "Furniture Designer",
         "Modern furniture design specialist",
         "Transportation Designer",
-        "Designer",
         "Design Entrepreneur",
-        "based creative entrepreneur",
-        "Design Consultant",
-        "Creating Product Designer"
+        "Creative entrepreneur",
+        "Design Consultant"
       ],
       "facilities": [
-        "Facilities :: Universitas Pembangunan Jaya (UPJ)",
         "Library",
         "Computer Lab",
         "Basketball court",
         "Clinic",
-        "Woodworking Lab"
+        "Woodworking Lab",
+        "Living Laboratory Jaya Group",
+        "Bengkel Desain Produk (Workshop DP)"
       ],
       "alumni": [
         {
-          "name": "Muhammad Rizki, S.Ds.",
+          "name": "Alumni_DP_01",
           "role": "Product Design, Class of 2016, Product Designer Dhaulagiri"
         },
         {
-          "name": "Rizkal Maulana, S.Ds.",
+          "name": "Alumni_DP_02",
           "role": "Product Designer at PT. Btwice Future Technologies"
         },
         {
-          "name": "Muhammad Rizki, S.Ds.",
-          "role": "Product Design, Class of 2016, Product Designer Dhaulagiri"
-        },
-        {
-          "name": "Rizkal Maulana, S.Ds.",
-          "role": "Product Designer at PT. Btwice Future Technologies"
-        },
-        {
-          "name": "Muhammad Rizki, S.Ds.",
-          "role": "Product Design, Class of 2016, Product Designer Dhaulagiri"
-        },
-        {
-          "name": "Rizkal Maulana, S.Ds.",
-          "role": "Product Designer at PT. Btwice Future Technologies"
-        },
-        {
-          "name": "Muhammad Rizki, S.Ds.",
-          "role": "Product Design, Class of 2016, Product Designer Dhaulagiri"
-        },
-        {
-          "name": "Rizkal Maulana, S.Ds.",
-          "role": "Product Designer at PT. Btwice Future Technologies"
-        },
-        {
-          "name": "Muhammad Rizki, S.Ds.",
-          "role": "Product Design, Class of 2016, Product Designer Dhaulagiri"
-        },
-        {
-          "name": "Rizkal Maulana, S.Ds.",
-          "role": "Product Designer at PT. Btwice Future Technologies"
-        },
-        {
-          "name": "Muhammad Rizki, S.Ds.",
+          "name": "Alumni_DP_03",
           "role": "Desain Produk, Angkatan 2016, Product Designer Dhaulagiri"
-        },
-        {
-          "name": "Rizkal Maulana, S.Ds.",
-          "role": "Product Designer at PT. Btwice Future Technologies"
-        },
-        {
-          "name": "Muhammad Rizki, S.Ds.",
-          "role": "Desain Produk, Angkatan 2016, Product Designer Dhaulagiri"
-        },
-        {
-          "name": "Rizkal Maulana, S.Ds.",
-          "role": "Product Designer at PT. Btwice Future Technologies"
-        },
-        {
-          "name": "Muhammad Rizki, S.Ds.",
-          "role": "Desain Produk, Angkatan 2016, Product Designer Dhaulagiri"
-        },
-        {
-          "name": "Rizkal Maulana, S.Ds.",
-          "role": "Product Designer at PT. Btwice Future Technologies"
-        },
-        {
-          "name": "Muhammad Rizki, S.Ds.",
-          "role": "Desain Produk, Angkatan 2016, Product Designer Dhaulagiri"
-        },
-        {
-          "name": "Rizkal Maulana, S.Ds.",
-          "role": "Product Designer at PT. Btwice Future Technologies"
-        },
-        {
-          "name": "Muhammad Rizki, S.Ds.",
-          "role": "Desain Produk, Angkatan 2016, Product Designer Dhaulagiri"
-        },
-        {
-          "name": "Rizkal Maulana, S.Ds.",
-          "role": "Product Designer at PT. Btwice Future Technologies"
         }
       ]
     },
@@ -454,88 +187,29 @@
         "Software Engineer",
         "Web Developer",
         "Game Developer",
-        "or Mobile Developer",
+        "Mobile Developer",
         "IT Architect",
-        "Drive innovation as a Competitive Intelligence Analyst",
-        "Turn data into insights as a Data Analyst",
-        "or AI Engineer",
-        "atau Mobile Developer",
-        "Menggerakkan inovasi sebagai Competitive Intelligence Analyst",
-        "Ubah data menjadi wawasan sebagai Data Analyst",
-        "atau AI Engineer"
+        "Competitive Intelligence Analyst",
+        "Data Analyst",
+        "AI Engineer"
       ],
       "facilities": [
-        "Facilities :: Universitas Pembangunan Jaya (UPJ)",
         "Class Room",
         "Basketball court",
         "Computer Lab",
         "Library",
         "Multifunctional Room",
-        "Theater"
+        "Theater",
+        "Living Laboratory Jaya Group",
+        "Laboratorium Komputer & iMac Studio"
       ],
       "alumni": [
         {
-          "name": "Aviana Zhafira Rustandiputri, S.Kom.",
+          "name": "Alumni_INF_01",
           "role": "Learning Platform Technology"
         },
         {
-          "name": "Abraham Billy, S.Kom.",
-          "role": "Junior Analyst Developer"
-        },
-        {
-          "name": "Aviana Zhafira Rustandiputri, S.Kom.",
-          "role": "Learning Platform Technology"
-        },
-        {
-          "name": "Abraham Billy, S.Kom.",
-          "role": "Junior Analyst Developer"
-        },
-        {
-          "name": "Aviana Zhafira Rustandiputri, S.Kom.",
-          "role": "Learning Platform Technology"
-        },
-        {
-          "name": "Abraham Billy, S.Kom.",
-          "role": "Junior Analyst Developer"
-        },
-        {
-          "name": "Aviana Zhafira Rustandiputri, S.Kom.",
-          "role": "Learning Platform Technology"
-        },
-        {
-          "name": "Abraham Billy, S.Kom.",
-          "role": "Junior Analyst Developer"
-        },
-        {
-          "name": "Aviana Zhafira Rustandiputri, S.Kom.",
-          "role": "Learning Platform Technology"
-        },
-        {
-          "name": "Abraham Billy, S.Kom.",
-          "role": "Junior Analyst Developer"
-        },
-        {
-          "name": "Aviana Zhafira Rustandiputri, S.Kom.",
-          "role": "Learning Platform Technology"
-        },
-        {
-          "name": "Abraham Billy, S.Kom.",
-          "role": "Junior Analyst Developer"
-        },
-        {
-          "name": "Aviana Zhafira Rustandiputri, S.Kom.",
-          "role": "Learning Platform Technology"
-        },
-        {
-          "name": "Abraham Billy, S.Kom.",
-          "role": "Junior Analyst Developer"
-        },
-        {
-          "name": "Aviana Zhafira Rustandiputri, S.Kom.",
-          "role": "Learning Platform Technology"
-        },
-        {
-          "name": "Abraham Billy, S.Kom.",
+          "name": "Alumni_INF_02",
           "role": "Junior Analyst Developer"
         }
       ]
@@ -557,7 +231,6 @@
         "Media Entrepreneur"
       ],
       "facilities": [
-        "Facilities :: Universitas Pembangunan Jaya (UPJ)",
         "Clinic",
         "Basketball court",
         "Computer Lab",
@@ -565,127 +238,20 @@
         "Library",
         "Theater",
         "Multifunctional Room",
-        "1 / 8"
+        "Living Laboratory Jaya Group",
+        "Studio TV & Radio Broadcasting"
       ],
       "alumni": [
         {
-          "name": "Bayu Aditya Suryanto, S.I.Kom",
+          "name": "Alumni_KOM_01",
           "role": "SEO Content Manager, PT Media Putra Nusantara (IDN Media) (Alumni KOM angkatan 2015)"
         },
         {
-          "name": "Muhammad Arkan Faruqi, S.I.Kom",
+          "name": "Alumni_KOM_02",
           "role": "Social Media Specialist, PT. Panatrade Caraka (Specs & Mizuno Indonesia) (Alumni KOM angkatan 2017)"
         },
         {
-          "name": "Emillia Nurdivahafsari Kusumawardani, S.I.Kom",
-          "role": "Senior Copywriter, Kitabisa.com (Alumni KOM 2016)"
-        },
-        {
-          "name": "Bayu Aditya Suryanto, S.I.Kom",
-          "role": "SEO Content Manager, PT Media Putra Nusantara (IDN Media) (Alumni KOM angkatan 2015)"
-        },
-        {
-          "name": "Muhammad Arkan Faruqi, S.I.Kom",
-          "role": "Social Media Specialist, PT. Panatrade Caraka (Specs & Mizuno Indonesia) (Alumni KOM angkatan 2017)"
-        },
-        {
-          "name": "Emillia Nurdivahafsari Kusumawardani, S.I.Kom",
-          "role": "Senior Copywriter, Kitabisa.com (Alumni KOM 2016)"
-        },
-        {
-          "name": "Bayu Aditya Suryanto, S.I.Kom",
-          "role": "SEO Content Manager, PT Media Putra Nusantara (IDN Media) (Alumni KOM angkatan 2015)"
-        },
-        {
-          "name": "Muhammad Arkan Faruqi, S.I.Kom",
-          "role": "Social Media Specialist, PT. Panatrade Caraka (Specs & Mizuno Indonesia) (Alumni KOM angkatan 2017)"
-        },
-        {
-          "name": "Emillia Nurdivahafsari Kusumawardani, S.I.Kom",
-          "role": "Senior Copywriter, Kitabisa.com (Alumni KOM 2016)"
-        },
-        {
-          "name": "Bayu Aditya Suryanto, S.I.Kom",
-          "role": "SEO Content Manager, PT Media Putra Nusantara (IDN Media) (Alumni KOM angkatan 2015)"
-        },
-        {
-          "name": "Muhammad Arkan Faruqi, S.I.Kom",
-          "role": "Social Media Specialist, PT. Panatrade Caraka (Specs & Mizuno Indonesia) (Alumni KOM angkatan 2017)"
-        },
-        {
-          "name": "Emillia Nurdivahafsari Kusumawardani, S.I.Kom",
-          "role": "Senior Copywriter, Kitabisa.com (Alumni KOM 2016)"
-        },
-        {
-          "name": "Bayu Aditya Suryanto, S.I.Kom",
-          "role": "SEO Content Manager, PT Media Putra Nusantara (IDN Media) (Alumni KOM angkatan 2015)"
-        },
-        {
-          "name": "Muhammad Arkan Faruqi, S.I.Kom",
-          "role": "Social Media Specialist, PT. Panatrade Caraka (Specs & Mizuno Indonesia) (Alumni KOM angkatan 2017)"
-        },
-        {
-          "name": "Emillia Nurdivahafsari Kusumawardani, S.I.Kom",
-          "role": "Senior Copywriter, Kitabisa.com (Alumni KOM 2016)"
-        },
-        {
-          "name": "Bayu Aditya Suryanto, S.I.Kom",
-          "role": "SEO Content Manager, PT Media Putra Nusantara (IDN Media) (Alumni KOM angkatan 2015)"
-        },
-        {
-          "name": "Muhammad Arkan Faruqi, S.I.Kom",
-          "role": "Social Media Specialist, PT. Panatrade Caraka (Specs & Mizuno Indonesia) (Alumni KOM angkatan 2017)"
-        },
-        {
-          "name": "Emillia Nurdivahafsari Kusumawardani, S.I.Kom",
-          "role": "Senior Copywriter, Kitabisa.com (Alumni KOM 2016)"
-        },
-        {
-          "name": "Bayu Aditya Suryanto, S.I.Kom",
-          "role": "SEO Content Manager, PT Media Putra Nusantara (IDN Media) (Alumni KOM angkatan 2015)"
-        },
-        {
-          "name": "Muhammad Arkan Faruqi, S.I.Kom",
-          "role": "Social Media Specialist, PT. Panatrade Caraka (Specs & Mizuno Indonesia) (Alumni KOM angkatan 2017)"
-        },
-        {
-          "name": "Emillia Nurdivahafsari Kusumawardani, S.I.Kom",
-          "role": "Senior Copywriter, Kitabisa.com (Alumni KOM 2016)"
-        },
-        {
-          "name": "Bayu Aditya Suryanto, S.I.Kom",
-          "role": "SEO Content Manager, PT Media Putra Nusantara (IDN Media) (Alumni KOM angkatan 2015)"
-        },
-        {
-          "name": "Muhammad Arkan Faruqi, S.I.Kom",
-          "role": "Social Media Specialist, PT. Panatrade Caraka (Specs & Mizuno Indonesia) (Alumni KOM angkatan 2017)"
-        },
-        {
-          "name": "Emillia Nurdivahafsari Kusumawardani, S.I.Kom",
-          "role": "Senior Copywriter, Kitabisa.com (Alumni KOM 2016)"
-        },
-        {
-          "name": "Bayu Aditya Suryanto, S.I.Kom",
-          "role": "SEO Content Manager, PT Media Putra Nusantara (IDN Media) (Alumni KOM angkatan 2015)"
-        },
-        {
-          "name": "Muhammad Arkan Faruqi, S.I.Kom",
-          "role": "Social Media Specialist, PT. Panatrade Caraka (Specs & Mizuno Indonesia) (Alumni KOM angkatan 2017)"
-        },
-        {
-          "name": "Emillia Nurdivahafsari Kusumawardani, S.I.Kom",
-          "role": "Senior Copywriter, Kitabisa.com (Alumni KOM 2016)"
-        },
-        {
-          "name": "Bayu Aditya Suryanto, S.I.Kom",
-          "role": "SEO Content Manager, PT Media Putra Nusantara (IDN Media) (Alumni KOM angkatan 2015)"
-        },
-        {
-          "name": "Muhammad Arkan Faruqi, S.I.Kom",
-          "role": "Social Media Specialist, PT. Panatrade Caraka (Specs & Mizuno Indonesia) (Alumni KOM angkatan 2017)"
-        },
-        {
-          "name": "Emillia Nurdivahafsari Kusumawardani, S.I.Kom",
+          "name": "Alumni_KOM_03",
           "role": "Senior Copywriter, Kitabisa.com (Alumni KOM 2016)"
         }
       ]
@@ -710,294 +276,33 @@
         "Business Development Manager"
       ],
       "facilities": [
-        "Facilities :: Universitas Pembangunan Jaya (UPJ)",
-        "LEADERSHIP TRAINING",
-        "Public Lecture by Telkom Indonesia",
-        "Participants of the Advanced Management Workshop Batch 124",
-        "Collaboration with NSHE Company",
-        "Welcome Address for Public Lecture",
-        "1 / 18"
+        "Living Laboratory Jaya Group",
+        "Galeri Investasi Bursa Efek (IDX)"
       ],
       "alumni": [
         {
-          "name": "Della, S.M",
+          "name": "Alumni_MNJ_01",
           "role": "HRD PT Jaya Real Property, Tbk"
         },
         {
-          "name": "Hilmy Mudzakir, S.M",
+          "name": "Alumni_MNJ_02",
           "role": "Lippo Grup"
         },
         {
-          "name": "Exciting and Enjoyable\nNuriyati, S.M",
+          "name": "Alumni_MNJ_03",
           "role": "Diva Jewelry Jakarta"
         },
         {
-          "name": "Erwin Winarjo, S.M",
+          "name": "Alumni_MNJ_04",
           "role": "Sales Coordinator, Universitas Pembangunan Jaya"
         },
         {
-          "name": "Marcellino Kevin Kojongian, S.M",
+          "name": "Alumni_MNJ_05",
           "role": "Sales Executive, Swiss-Belhotel Internationalâ€¯â€¯"
         },
         {
-          "name": "Della, S.M",
-          "role": "HRD PT Jaya Real Property, Tbk"
-        },
-        {
-          "name": "Hilmy Mudzakir, S.M",
-          "role": "Lippo Grup"
-        },
-        {
-          "name": "Exciting and Enjoyable\nNuriyati, S.M",
+          "name": "Alumni_MNJ_06",
           "role": "Diva Jewelry Jakarta"
-        },
-        {
-          "name": "Erwin Winarjo, S.M",
-          "role": "Sales Coordinator, Universitas Pembangunan Jaya"
-        },
-        {
-          "name": "Marcellino Kevin Kojongian, S.M",
-          "role": "Sales Executive, Swiss-Belhotel Internationalâ€¯â€¯"
-        },
-        {
-          "name": "Della, S.M",
-          "role": "HRD PT Jaya Real Property, Tbk"
-        },
-        {
-          "name": "Hilmy Mudzakir, S.M",
-          "role": "Lippo Grup"
-        },
-        {
-          "name": "Exciting and Enjoyable\nNuriyati, S.M",
-          "role": "Diva Jewelry Jakarta"
-        },
-        {
-          "name": "Erwin Winarjo, S.M",
-          "role": "Sales Coordinator, Universitas Pembangunan Jaya"
-        },
-        {
-          "name": "Marcellino Kevin Kojongian, S.M",
-          "role": "Sales Executive, Swiss-Belhotel Internationalâ€¯â€¯"
-        },
-        {
-          "name": "Della, S.M",
-          "role": "HRD PT Jaya Real Property, Tbk"
-        },
-        {
-          "name": "Hilmy Mudzakir, S.M",
-          "role": "Lippo Grup"
-        },
-        {
-          "name": "Exciting and Enjoyable\nNuriyati, S.M",
-          "role": "Diva Jewelry Jakarta"
-        },
-        {
-          "name": "Erwin Winarjo, S.M",
-          "role": "Sales Coordinator, Universitas Pembangunan Jaya"
-        },
-        {
-          "name": "Marcellino Kevin Kojongian, S.M",
-          "role": "Sales Executive, Swiss-Belhotel Internationalâ€¯â€¯"
-        },
-        {
-          "name": "Della, S.M",
-          "role": "HRD PT Jaya Real Property, Tbk"
-        },
-        {
-          "name": "Hilmy Mudzakir, S.M",
-          "role": "Lippo Grup"
-        },
-        {
-          "name": "Exciting and Enjoyable\nNuriyati, S.M",
-          "role": "Diva Jewelry Jakarta"
-        },
-        {
-          "name": "Erwin Winarjo, S.M",
-          "role": "Sales Coordinator, Universitas Pembangunan Jaya"
-        },
-        {
-          "name": "Marcellino Kevin Kojongian, S.M",
-          "role": "Sales Executive, Swiss-Belhotel Internationalâ€¯â€¯"
-        },
-        {
-          "name": "Della, S.M",
-          "role": "HRD PT Jaya Real Property, Tbk"
-        },
-        {
-          "name": "Hilmy Mudzakir, S.M",
-          "role": "Lippo Grup"
-        },
-        {
-          "name": "Seru dan menyenangkan\nNuriyati, S.M",
-          "role": "Diva Jewelry Jakarta"
-        },
-        {
-          "name": "Erwin Winarjo, S.M",
-          "role": "Sales Coordinator, Universitas Pembangunan Jaya"
-        },
-        {
-          "name": "Marcellino Kevin Kojongian, S.M",
-          "role": "Sales Executive, Swiss-Belhotel Internationalâ€¯â€¯"
-        },
-        {
-          "name": "Della, S.M",
-          "role": "HRD PT Jaya Real Property, Tbk"
-        },
-        {
-          "name": "Hilmy Mudzakir, S.M",
-          "role": "Lippo Grup"
-        },
-        {
-          "name": "Seru dan menyenangkan\nNuriyati, S.M",
-          "role": "Diva Jewelry Jakarta"
-        },
-        {
-          "name": "Erwin Winarjo, S.M",
-          "role": "Sales Coordinator, Universitas Pembangunan Jaya"
-        },
-        {
-          "name": "Marcellino Kevin Kojongian, S.M",
-          "role": "Sales Executive, Swiss-Belhotel Internationalâ€¯â€¯"
-        },
-        {
-          "name": "Della, S.M",
-          "role": "HRD PT Jaya Real Property, Tbk"
-        },
-        {
-          "name": "Hilmy Mudzakir, S.M",
-          "role": "Lippo Grup"
-        },
-        {
-          "name": "Seru dan menyenangkan\nNuriyati, S.M",
-          "role": "Diva Jewelry Jakarta"
-        },
-        {
-          "name": "Erwin Winarjo, S.M",
-          "role": "Sales Coordinator, Universitas Pembangunan Jaya"
-        },
-        {
-          "name": "Marcellino Kevin Kojongian, S.M",
-          "role": "Sales Executive, Swiss-Belhotel Internationalâ€¯â€¯"
-        },
-        {
-          "name": "Della, S.M",
-          "role": "HRD PT Jaya Real Property, Tbk"
-        },
-        {
-          "name": "Hilmy Mudzakir, S.M",
-          "role": "Lippo Grup"
-        },
-        {
-          "name": "Seru dan menyenangkan\nNuriyati, S.M",
-          "role": "Diva Jewelry Jakarta"
-        },
-        {
-          "name": "Erwin Winarjo, S.M",
-          "role": "Sales Coordinator, Universitas Pembangunan Jaya"
-        },
-        {
-          "name": "Marcellino Kevin Kojongian, S.M",
-          "role": "Sales Executive, Swiss-Belhotel Internationalâ€¯â€¯"
-        },
-        {
-          "name": "Della, S.M",
-          "role": "HRD PT Jaya Real Property, Tbk"
-        },
-        {
-          "name": "Hilmy Mudzakir, S.M",
-          "role": "Lippo Grup"
-        },
-        {
-          "name": "Seru dan menyenangkan\nNuriyati, S.M",
-          "role": "Diva Jewelry Jakarta"
-        },
-        {
-          "name": "Erwin Winarjo, S.M",
-          "role": "Sales Coordinator, Universitas Pembangunan Jaya"
-        },
-        {
-          "name": "Marcellino Kevin Kojongian, S.M",
-          "role": "Sales Executive, Swiss-Belhotel Internationalâ€¯â€¯"
-        },
-        {
-          "name": "Della, S.M",
-          "role": "HRD PT Jaya Real Property, Tbk"
-        },
-        {
-          "name": "Hilmy Mudzakir, S.M",
-          "role": "Lippo Grup"
-        },
-        {
-          "name": "Seru dan menyenangkan\nNuriyati, S.M",
-          "role": "Diva Jewelry Jakarta"
-        },
-        {
-          "name": "Erwin Winarjo, S.M",
-          "role": "Sales Coordinator, Universitas Pembangunan Jaya"
-        },
-        {
-          "name": "Marcellino Kevin Kojongian, S.M",
-          "role": "Sales Executive, Swiss-Belhotel Internationalâ€¯â€¯"
-        },
-        {
-          "name": "Della, S.M",
-          "role": "HRD PT Jaya Real Property, Tbk"
-        },
-        {
-          "name": "Hilmy Mudzakir, S.M",
-          "role": "Lippo Grup"
-        },
-        {
-          "name": "Seru dan menyenangkan\nNuriyati, S.M",
-          "role": "Diva Jewelry Jakarta"
-        },
-        {
-          "name": "Erwin Winarjo, S.M",
-          "role": "Sales Coordinator, Universitas Pembangunan Jaya"
-        },
-        {
-          "name": "Marcellino Kevin Kojongian, S.M",
-          "role": "Sales Executive, Swiss-Belhotel Internationalâ€¯â€¯"
-        },
-        {
-          "name": "Della, S.M",
-          "role": "HRD PT Jaya Real Property, Tbk"
-        },
-        {
-          "name": "Hilmy Mudzakir, S.M",
-          "role": "Lippo Grup"
-        },
-        {
-          "name": "Seru dan menyenangkan\nNuriyati, S.M",
-          "role": "Diva Jewelry Jakarta"
-        },
-        {
-          "name": "Erwin Winarjo, S.M",
-          "role": "Sales Coordinator, Universitas Pembangunan Jaya"
-        },
-        {
-          "name": "Marcellino Kevin Kojongian, S.M",
-          "role": "Sales Executive, Swiss-Belhotel Internationalâ€¯â€¯"
-        },
-        {
-          "name": "Della, S.M",
-          "role": "HRD PT Jaya Real Property, Tbk"
-        },
-        {
-          "name": "Hilmy Mudzakir, S.M",
-          "role": "Lippo Grup"
-        },
-        {
-          "name": "Seru dan menyenangkan\nNuriyati, S.M",
-          "role": "Diva Jewelry Jakarta"
-        },
-        {
-          "name": "Erwin Winarjo, S.M",
-          "role": "Sales Coordinator, Universitas Pembangunan Jaya"
-        },
-        {
-          "name": "Marcellino Kevin Kojongian, S.M",
-          "role": "Sales Executive, Swiss-Belhotel Internationalâ€¯â€¯"
         }
       ]
     },
@@ -1006,7 +311,7 @@
       "name": "Pendidikan Profesi Arsitek",
       "faculty": "Fakultas Teknologi dan Desain",
       "faculty_code": "FTD",
-      "degree": "Bachelor of Engineering, Professional Architect Education (PPAr), and Master of Architecture from the Sepuluh Nopember Institute of Technology in Surabaya, with a focus on architectural design. Her design thesis, titled “Color as a Form Giver in the Surabaya Cancer Clinic in the Context of Healing Architecture,” reflects her interest in healing architecture and color-based spatial experiences.",
+      "degree": "Professional Architect Education (PPAr)",
       "duration": "3.5 Years / 7 Semester",
       "vision": "",
       "mission": "",
@@ -1014,23 +319,20 @@
       "akreditasi": "Baik Sekali",
       "url": "https://ppar.upj.ac.id/",
       "career_paths": [
-        "UPJ PPAr graduates are prepared to become young professional architect",
+        "Professional architect",
         "Architectural Firms/Consultant",
-        "Able to work in architect",
-        "Collaborating with property developer",
-        "Entrepreneurial Architect",
-        "Capable of building independent ventures in architect",
-        "entrepreneur"
+        "Property developer",
+        "Entrepreneurial Architect"
       ],
       "facilities": [
-        "Facilities :: Universitas Pembangunan Jaya (UPJ)",
         "Storage and Printing Hub",
         "Collaboration Studio",
         "Learning Forum",
         "Digital Discovery Zone",
         "Social Lounge",
         "Showcase Gallery",
-        "Riverfront Mini Bar"
+        "Riverfront Mini Bar",
+        "Living Laboratory Jaya Group"
       ],
       "alumni": []
     },
@@ -1050,41 +352,14 @@
         "HR Development Specialist"
       ],
       "facilities": [
-        "Facilities :: Universitas Pembangunan Jaya (UPJ)",
         "Multifunctional Room",
-        "Psychology Laboratory"
+        "Psychology Laboratory",
+        "Living Laboratory Jaya Group",
+        "Laboratorium Psikodiagnostika"
       ],
       "alumni": [
         {
-          "name": "Thalia Lunaadhara Isril, S.Psi",
-          "role": "Human Resources Officer at PB Jaya Raya"
-        },
-        {
-          "name": "Thalia Lunaadhara Isril, S.Psi",
-          "role": "Human Resources Officer at PB Jaya Raya"
-        },
-        {
-          "name": "Thalia Lunaadhara Isril, S.Psi",
-          "role": "Human Resources Officer at PB Jaya Raya"
-        },
-        {
-          "name": "Thalia Lunaadhara Isril, S.Psi",
-          "role": "Human Resources Officer at PB Jaya Raya"
-        },
-        {
-          "name": "Thalia Lunaadhara Isril, S.Psi",
-          "role": "Human Resources Officer at PB Jaya Raya"
-        },
-        {
-          "name": "Thalia Lunaadhara Isril, S.Psi",
-          "role": "Human Resources Officer at PB Jaya Raya"
-        },
-        {
-          "name": "Thalia Lunaadhara Isril, S.Psi",
-          "role": "Human Resources Officer at PB Jaya Raya"
-        },
-        {
-          "name": "Thalia Lunaadhara Isril, S.Psi",
+          "name": "Alumni_PSI_01",
           "role": "Human Resources Officer at PB Jaya Raya"
         }
       ]
@@ -1110,151 +385,32 @@
         "IT Security Specialist"
       ],
       "facilities": [
-        "Facilities :: Universitas Pembangunan Jaya (UPJ)"
+        "Living Laboratory Jaya Group",
+        "Laboratorium Komputer & iMac Studio"
       ],
       "alumni": [
         {
-          "name": "Hafizhar Naufal, S.Kom",
+          "name": "Alumni_SIF_01",
           "role": "IT Product Manager"
         },
         {
-          "name": "Muhammad Dary Azhari, S.Kom",
+          "name": "Alumni_SIF_02",
           "role": "iOS Engineer - Luno United Kingdom"
         },
         {
-          "name": "Marshall Theofilus, S.Kom",
+          "name": "Alumni_SIF_03",
           "role": "Junior Implementation Consultant - Humanica Indonesia (Dataon"
         },
         {
-          "name": "Hafizhar Naufal, S.Kom",
+          "name": "Alumni_SIF_04",
           "role": "IT Product Manager"
         },
         {
-          "name": "Muhammad Dary Azhari, S.Kom",
+          "name": "Alumni_SIF_05",
           "role": "iOS Engineer - Luno United Kingdom"
         },
         {
-          "name": "Marshall Theofilus, S.Kom",
-          "role": "Junior Implementation Consultant - Humanica Indonesia (Dataon"
-        },
-        {
-          "name": "Hafizhar Naufal, S.Kom",
-          "role": "IT Product Manager"
-        },
-        {
-          "name": "Muhammad Dary Azhari, S.Kom",
-          "role": "iOS Engineer - Luno United Kingdom"
-        },
-        {
-          "name": "Marshall Theofilus, S.Kom",
-          "role": "Junior Implementation Consultant - Humanica Indonesia (Dataon"
-        },
-        {
-          "name": "Hafizhar Naufal, S.Kom",
-          "role": "IT Product Manager"
-        },
-        {
-          "name": "Muhammad Dary Azhari, S.Kom",
-          "role": "iOS Engineer - Luno United Kingdom"
-        },
-        {
-          "name": "Marshall Theofilus, S.Kom",
-          "role": "Junior Implementation Consultant - Humanica Indonesia (Dataon"
-        },
-        {
-          "name": "Hafizhar Naufal, S.Kom",
-          "role": "IT Product Manager"
-        },
-        {
-          "name": "Muhammad Dary Azhari, S.Kom",
-          "role": "iOS Engineer - Luno United Kingdom"
-        },
-        {
-          "name": "Marshall Theofilus, S.Kom",
-          "role": "Junior Implementation Consultant - Humanica Indonesia (Dataon"
-        },
-        {
-          "name": "Sehingga saya menjadi cepat beradaptasi untuk mendapatkan pekerjaan\nHafizhar Naufal, S.Kom",
-          "role": "IT Product Manager"
-        },
-        {
-          "name": "Juga setelah menjadi alumni merasakan lingkungan positif dari sesama alumni untuk terus maju bersama menjalin koneksi\nMuhammad Dary Azhari, S.Kom",
-          "role": "iOS Engineer - Luno United Kingdom"
-        },
-        {
-          "name": "Upj kita dituntut untuk mengembangkan diri dengan magang di perusahaan untuk mempunyai pengalaman kerja sesuai dengan Program Studi yang kita pelajari\nMarshall Theofilus, S.Kom",
-          "role": "Junior Implementation Consultant - Humanica Indonesia (Dataon"
-        },
-        {
-          "name": "Sehingga saya menjadi cepat beradaptasi untuk mendapatkan pekerjaan\nHafizhar Naufal, S.Kom",
-          "role": "IT Product Manager"
-        },
-        {
-          "name": "Juga setelah menjadi alumni merasakan lingkungan positif dari sesama alumni untuk terus maju bersama menjalin koneksi\nMuhammad Dary Azhari, S.Kom",
-          "role": "iOS Engineer - Luno United Kingdom"
-        },
-        {
-          "name": "Upj kita dituntut untuk mengembangkan diri dengan magang di perusahaan untuk mempunyai pengalaman kerja sesuai dengan Program Studi yang kita pelajari\nMarshall Theofilus, S.Kom",
-          "role": "Junior Implementation Consultant - Humanica Indonesia (Dataon"
-        },
-        {
-          "name": "Sehingga saya menjadi cepat beradaptasi untuk mendapatkan pekerjaan\nHafizhar Naufal, S.Kom",
-          "role": "IT Product Manager"
-        },
-        {
-          "name": "Juga setelah menjadi alumni merasakan lingkungan positif dari sesama alumni untuk terus maju bersama menjalin koneksi\nMuhammad Dary Azhari, S.Kom",
-          "role": "iOS Engineer - Luno United Kingdom"
-        },
-        {
-          "name": "Upj kita dituntut untuk mengembangkan diri dengan magang di perusahaan untuk mempunyai pengalaman kerja sesuai dengan Program Studi yang kita pelajari\nMarshall Theofilus, S.Kom",
-          "role": "Junior Implementation Consultant - Humanica Indonesia (Dataon"
-        },
-        {
-          "name": "Sehingga saya menjadi cepat beradaptasi untuk mendapatkan pekerjaan\nHafizhar Naufal, S.Kom",
-          "role": "IT Product Manager"
-        },
-        {
-          "name": "Juga setelah menjadi alumni merasakan lingkungan positif dari sesama alumni untuk terus maju bersama menjalin koneksi\nMuhammad Dary Azhari, S.Kom",
-          "role": "iOS Engineer - Luno United Kingdom"
-        },
-        {
-          "name": "Upj kita dituntut untuk mengembangkan diri dengan magang di perusahaan untuk mempunyai pengalaman kerja sesuai dengan Program Studi yang kita pelajari\nMarshall Theofilus, S.Kom",
-          "role": "Junior Implementation Consultant - Humanica Indonesia (Dataon"
-        },
-        {
-          "name": "Sehingga saya menjadi cepat beradaptasi untuk mendapatkan pekerjaan\nHafizhar Naufal, S.Kom",
-          "role": "IT Product Manager"
-        },
-        {
-          "name": "Juga setelah menjadi alumni merasakan lingkungan positif dari sesama alumni untuk terus maju bersama menjalin koneksi\nMuhammad Dary Azhari, S.Kom",
-          "role": "iOS Engineer - Luno United Kingdom"
-        },
-        {
-          "name": "Upj kita dituntut untuk mengembangkan diri dengan magang di perusahaan untuk mempunyai pengalaman kerja sesuai dengan Program Studi yang kita pelajari\nMarshall Theofilus, S.Kom",
-          "role": "Junior Implementation Consultant - Humanica Indonesia (Dataon"
-        },
-        {
-          "name": "Sehingga saya menjadi cepat beradaptasi untuk mendapatkan pekerjaan\nHafizhar Naufal, S.Kom",
-          "role": "IT Product Manager"
-        },
-        {
-          "name": "Juga setelah menjadi alumni merasakan lingkungan positif dari sesama alumni untuk terus maju bersama menjalin koneksi\nMuhammad Dary Azhari, S.Kom",
-          "role": "iOS Engineer - Luno United Kingdom"
-        },
-        {
-          "name": "Upj kita dituntut untuk mengembangkan diri dengan magang di perusahaan untuk mempunyai pengalaman kerja sesuai dengan Program Studi yang kita pelajari\nMarshall Theofilus, S.Kom",
-          "role": "Junior Implementation Consultant - Humanica Indonesia (Dataon"
-        },
-        {
-          "name": "Sehingga saya menjadi cepat beradaptasi untuk mendapatkan pekerjaan\nHafizhar Naufal, S.Kom",
-          "role": "IT Product Manager"
-        },
-        {
-          "name": "Juga setelah menjadi alumni merasakan lingkungan positif dari sesama alumni untuk terus maju bersama menjalin koneksi\nMuhammad Dary Azhari, S.Kom",
-          "role": "iOS Engineer - Luno United Kingdom"
-        },
-        {
-          "name": "Upj kita dituntut untuk mengembangkan diri dengan magang di perusahaan untuk mempunyai pengalaman kerja sesuai dengan Program Studi yang kita pelajari\nMarshall Theofilus, S.Kom",
+          "name": "Alumni_SIF_06",
           "role": "Junior Implementation Consultant - Humanica Indonesia (Dataon"
         }
       ]
@@ -1272,16 +428,13 @@
       "akreditasi": "Baik Sekali",
       "url": "https://tsp.upj.ac.id/",
       "career_paths": [
-        "Graduates of UPJ Civil Engineer",
         "Site Engineer",
         "Project Manager",
         "Structural Engineer",
         "Geotechnical Engineer",
-        "Construction Entrepreneur",
-        "Where Future Civil Engineer"
+        "Construction Entrepreneur"
       ],
       "facilities": [
-        "Facilities :: Universitas Pembangunan Jaya (UPJ)",
         "Library",
         "Basketball court",
         "Computer Lab",
@@ -1290,87 +443,24 @@
         "Multifunctional Room",
         "Theater",
         "Clinic",
-        "1 / 11"
+        "Laboratorium Mekanika Tanah & Struktur",
+        "Living Laboratory Jaya Group"
       ],
       "alumni": [
         {
-          "name": "Shinta Amalia, S.T.",
+          "name": "Alumni_TSP_01",
           "role": "Civil Engineer 2018, Estimator At PT. Totalindo Optima Pragia"
         },
         {
-          "name": "Reinaldo Nathaniel Elifas, S.T.",
+          "name": "Alumni_TSP_02",
           "role": "Civil Engineer 2013, Engineer at PT Freeport Indonesia"
         },
         {
-          "name": "Shinta Amalia, S.T.",
-          "role": "Civil Engineer 2018, Estimator At PT. Totalindo Optima Pragia"
-        },
-        {
-          "name": "Reinaldo Nathaniel Elifas, S.T.",
-          "role": "Civil Engineer 2013, Engineer at PT Freeport Indonesia"
-        },
-        {
-          "name": "Shinta Amalia, S.T.",
-          "role": "Civil Engineer 2018, Estimator At PT. Totalindo Optima Pragia"
-        },
-        {
-          "name": "Reinaldo Nathaniel Elifas, S.T.",
-          "role": "Civil Engineer 2013, Engineer at PT Freeport Indonesia"
-        },
-        {
-          "name": "Shinta Amalia, S.T.",
-          "role": "Civil Engineer 2018, Estimator At PT. Totalindo Optima Pragia"
-        },
-        {
-          "name": "Reinaldo Nathaniel Elifas, S.T.",
-          "role": "Civil Engineer 2013, Engineer at PT Freeport Indonesia"
-        },
-        {
-          "name": "Shinta Amalia, S.T.",
-          "role": "Civil Engineer 2018, Estimator At PT. Totalindo Optima Pragia"
-        },
-        {
-          "name": "Reinaldo Nathaniel Elifas, S.T.",
-          "role": "Civil Engineer 2013, Engineer at PT Freeport Indonesia"
-        },
-        {
-          "name": "Shinta Amalia, S.T.",
+          "name": "Alumni_TSP_03",
           "role": "Teknik Sipil, Angkatan 2018, Estimator At PT. Totalindo Optima Pragia"
         },
         {
-          "name": "Reinaldo Nathaniel Elifas, S.T.",
-          "role": "Teknik Sipil, Angkatan 2013, Engineer at PT Freeport Indonesia"
-        },
-        {
-          "name": "Shinta Amalia, S.T.",
-          "role": "Teknik Sipil, Angkatan 2018, Estimator At PT. Totalindo Optima Pragia"
-        },
-        {
-          "name": "Reinaldo Nathaniel Elifas, S.T.",
-          "role": "Teknik Sipil, Angkatan 2013, Engineer at PT Freeport Indonesia"
-        },
-        {
-          "name": "Shinta Amalia, S.T.",
-          "role": "Teknik Sipil, Angkatan 2018, Estimator At PT. Totalindo Optima Pragia"
-        },
-        {
-          "name": "Reinaldo Nathaniel Elifas, S.T.",
-          "role": "Teknik Sipil, Angkatan 2013, Engineer at PT Freeport Indonesia"
-        },
-        {
-          "name": "Shinta Amalia, S.T.",
-          "role": "Teknik Sipil, Angkatan 2018, Estimator At PT. Totalindo Optima Pragia"
-        },
-        {
-          "name": "Reinaldo Nathaniel Elifas, S.T.",
-          "role": "Teknik Sipil, Angkatan 2013, Engineer at PT Freeport Indonesia"
-        },
-        {
-          "name": "Shinta Amalia, S.T.",
-          "role": "Teknik Sipil, Angkatan 2018, Estimator At PT. Totalindo Optima Pragia"
-        },
-        {
-          "name": "Reinaldo Nathaniel Elifas, S.T.",
+          "name": "Alumni_TSP_04",
           "role": "Teknik Sipil, Angkatan 2013, Engineer at PT Freeport Indonesia"
         }
       ]
@@ -13176,7 +12266,12 @@
         "lingkup_nasional": 29,
         "persen_lingkup_nasional": 69.05,
         "lingkup_multinasional": 2,
-        "persen_lingkup_multinasional": 4.76
+        "persen_lingkup_multinasional": 4.76,
+        "is_suppressed": false,
+        "suppress_wt_lt_6": false,
+        "suppress_selaras": false,
+        "suppress_nasional": false,
+        "suppress_multinasional": true
       },
       {
         "id": "TS_MNJ_2022",
@@ -13203,7 +12298,12 @@
         "lingkup_nasional": 16,
         "persen_lingkup_nasional": 45.71,
         "lingkup_multinasional": 2,
-        "persen_lingkup_multinasional": 5.71
+        "persen_lingkup_multinasional": 5.71,
+        "is_suppressed": false,
+        "suppress_wt_lt_6": false,
+        "suppress_selaras": false,
+        "suppress_nasional": false,
+        "suppress_multinasional": true
       },
       {
         "id": "TS_PSI_2022",
@@ -13230,7 +12330,12 @@
         "lingkup_nasional": 17,
         "persen_lingkup_nasional": 54.84,
         "lingkup_multinasional": 1,
-        "persen_lingkup_multinasional": 3.23
+        "persen_lingkup_multinasional": 3.23,
+        "is_suppressed": false,
+        "suppress_wt_lt_6": false,
+        "suppress_selaras": false,
+        "suppress_nasional": false,
+        "suppress_multinasional": true
       },
       {
         "id": "TS_KOM_2022",
@@ -13257,7 +12362,12 @@
         "lingkup_nasional": 31,
         "persen_lingkup_nasional": 60.78,
         "lingkup_multinasional": 3,
-        "persen_lingkup_multinasional": 5.88
+        "persen_lingkup_multinasional": 5.88,
+        "is_suppressed": false,
+        "suppress_wt_lt_6": false,
+        "suppress_selaras": false,
+        "suppress_nasional": false,
+        "suppress_multinasional": true
       },
       {
         "id": "TS_DP_2022",
@@ -13284,7 +12394,12 @@
         "lingkup_nasional": 1,
         "persen_lingkup_nasional": 50.0,
         "lingkup_multinasional": 0,
-        "persen_lingkup_multinasional": 0.0
+        "persen_lingkup_multinasional": 0.0,
+        "is_suppressed": true,
+        "suppress_wt_lt_6": true,
+        "suppress_selaras": true,
+        "suppress_nasional": true,
+        "suppress_multinasional": false
       },
       {
         "id": "TS_DKV_2022",
@@ -13311,7 +12426,12 @@
         "lingkup_nasional": 21,
         "persen_lingkup_nasional": 45.65,
         "lingkup_multinasional": 4,
-        "persen_lingkup_multinasional": 8.7
+        "persen_lingkup_multinasional": 8.7,
+        "is_suppressed": false,
+        "suppress_wt_lt_6": false,
+        "suppress_selaras": false,
+        "suppress_nasional": false,
+        "suppress_multinasional": true
       },
       {
         "id": "TS_INF_2022",
@@ -13338,7 +12458,12 @@
         "lingkup_nasional": 8,
         "persen_lingkup_nasional": 53.33,
         "lingkup_multinasional": 1,
-        "persen_lingkup_multinasional": 6.67
+        "persen_lingkup_multinasional": 6.67,
+        "is_suppressed": false,
+        "suppress_wt_lt_6": false,
+        "suppress_selaras": false,
+        "suppress_nasional": false,
+        "suppress_multinasional": true
       },
       {
         "id": "TS_SIF_2022",
@@ -13365,7 +12490,12 @@
         "lingkup_nasional": 13,
         "persen_lingkup_nasional": 40.62,
         "lingkup_multinasional": 5,
-        "persen_lingkup_multinasional": 15.62
+        "persen_lingkup_multinasional": 15.62,
+        "is_suppressed": false,
+        "suppress_wt_lt_6": false,
+        "suppress_selaras": false,
+        "suppress_nasional": false,
+        "suppress_multinasional": false
       },
       {
         "id": "TS_TSP_2022",
@@ -13392,7 +12522,12 @@
         "lingkup_nasional": 16,
         "persen_lingkup_nasional": 55.17,
         "lingkup_multinasional": 3,
-        "persen_lingkup_multinasional": 10.34
+        "persen_lingkup_multinasional": 10.34,
+        "is_suppressed": false,
+        "suppress_wt_lt_6": false,
+        "suppress_selaras": false,
+        "suppress_nasional": false,
+        "suppress_multinasional": true
       },
       {
         "id": "TS_ARS_2022",
@@ -13419,7 +12554,12 @@
         "lingkup_nasional": 20,
         "persen_lingkup_nasional": 50.0,
         "lingkup_multinasional": 3,
-        "persen_lingkup_multinasional": 7.5
+        "persen_lingkup_multinasional": 7.5,
+        "is_suppressed": false,
+        "suppress_wt_lt_6": false,
+        "suppress_selaras": false,
+        "suppress_nasional": false,
+        "suppress_multinasional": true
       },
       {
         "id": "TS_AKT_2023",
@@ -13446,7 +12586,12 @@
         "lingkup_nasional": 44,
         "persen_lingkup_nasional": 69.84,
         "lingkup_multinasional": 5,
-        "persen_lingkup_multinasional": 7.94
+        "persen_lingkup_multinasional": 7.94,
+        "is_suppressed": false,
+        "suppress_wt_lt_6": false,
+        "suppress_selaras": false,
+        "suppress_nasional": false,
+        "suppress_multinasional": false
       },
       {
         "id": "TS_MNJ_2023",
@@ -13473,7 +12618,12 @@
         "lingkup_nasional": 52,
         "persen_lingkup_nasional": 51.49,
         "lingkup_multinasional": 7,
-        "persen_lingkup_multinasional": 6.93
+        "persen_lingkup_multinasional": 6.93,
+        "is_suppressed": false,
+        "suppress_wt_lt_6": false,
+        "suppress_selaras": false,
+        "suppress_nasional": false,
+        "suppress_multinasional": false
       },
       {
         "id": "TS_PSI_2023",
@@ -13500,7 +12650,12 @@
         "lingkup_nasional": 14,
         "persen_lingkup_nasional": 50.0,
         "lingkup_multinasional": 3,
-        "persen_lingkup_multinasional": 10.71
+        "persen_lingkup_multinasional": 10.71,
+        "is_suppressed": false,
+        "suppress_wt_lt_6": false,
+        "suppress_selaras": false,
+        "suppress_nasional": false,
+        "suppress_multinasional": true
       },
       {
         "id": "TS_KOM_2023",
@@ -13527,7 +12682,12 @@
         "lingkup_nasional": 35,
         "persen_lingkup_nasional": 45.45,
         "lingkup_multinasional": 7,
-        "persen_lingkup_multinasional": 9.09
+        "persen_lingkup_multinasional": 9.09,
+        "is_suppressed": false,
+        "suppress_wt_lt_6": false,
+        "suppress_selaras": false,
+        "suppress_nasional": false,
+        "suppress_multinasional": false
       },
       {
         "id": "TS_DP_2023",
@@ -13554,7 +12714,12 @@
         "lingkup_nasional": 2,
         "persen_lingkup_nasional": 28.57,
         "lingkup_multinasional": 0,
-        "persen_lingkup_multinasional": 0.0
+        "persen_lingkup_multinasional": 0.0,
+        "is_suppressed": false,
+        "suppress_wt_lt_6": true,
+        "suppress_selaras": true,
+        "suppress_nasional": true,
+        "suppress_multinasional": false
       },
       {
         "id": "TS_DKV_2023",
@@ -13581,7 +12746,12 @@
         "lingkup_nasional": 20,
         "persen_lingkup_nasional": 50.0,
         "lingkup_multinasional": 4,
-        "persen_lingkup_multinasional": 10.0
+        "persen_lingkup_multinasional": 10.0,
+        "is_suppressed": false,
+        "suppress_wt_lt_6": false,
+        "suppress_selaras": false,
+        "suppress_nasional": false,
+        "suppress_multinasional": true
       },
       {
         "id": "TS_INF_2023",
@@ -13608,7 +12778,12 @@
         "lingkup_nasional": 23,
         "persen_lingkup_nasional": 69.7,
         "lingkup_multinasional": 1,
-        "persen_lingkup_multinasional": 3.03
+        "persen_lingkup_multinasional": 3.03,
+        "is_suppressed": false,
+        "suppress_wt_lt_6": false,
+        "suppress_selaras": false,
+        "suppress_nasional": false,
+        "suppress_multinasional": true
       },
       {
         "id": "TS_SIF_2023",
@@ -13635,7 +12810,12 @@
         "lingkup_nasional": 24,
         "persen_lingkup_nasional": 40.0,
         "lingkup_multinasional": 12,
-        "persen_lingkup_multinasional": 20.0
+        "persen_lingkup_multinasional": 20.0,
+        "is_suppressed": false,
+        "suppress_wt_lt_6": false,
+        "suppress_selaras": false,
+        "suppress_nasional": false,
+        "suppress_multinasional": false
       },
       {
         "id": "TS_TSP_2023",
@@ -13662,7 +12842,12 @@
         "lingkup_nasional": 19,
         "persen_lingkup_nasional": 65.52,
         "lingkup_multinasional": 0,
-        "persen_lingkup_multinasional": 0.0
+        "persen_lingkup_multinasional": 0.0,
+        "is_suppressed": false,
+        "suppress_wt_lt_6": false,
+        "suppress_selaras": false,
+        "suppress_nasional": false,
+        "suppress_multinasional": false
       },
       {
         "id": "TS_ARS_2023",
@@ -13689,7 +12874,12 @@
         "lingkup_nasional": 22,
         "persen_lingkup_nasional": 57.89,
         "lingkup_multinasional": 4,
-        "persen_lingkup_multinasional": 10.53
+        "persen_lingkup_multinasional": 10.53,
+        "is_suppressed": false,
+        "suppress_wt_lt_6": false,
+        "suppress_selaras": false,
+        "suppress_nasional": false,
+        "suppress_multinasional": true
       },
       {
         "id": "TS_AKT_2024",
@@ -13716,7 +12906,12 @@
         "lingkup_nasional": 29,
         "persen_lingkup_nasional": 58.0,
         "lingkup_multinasional": 9,
-        "persen_lingkup_multinasional": 18.0
+        "persen_lingkup_multinasional": 18.0,
+        "is_suppressed": false,
+        "suppress_wt_lt_6": false,
+        "suppress_selaras": false,
+        "suppress_nasional": false,
+        "suppress_multinasional": false
       },
       {
         "id": "TS_MNJ_2024",
@@ -13743,7 +12938,12 @@
         "lingkup_nasional": 52,
         "persen_lingkup_nasional": 45.61,
         "lingkup_multinasional": 10,
-        "persen_lingkup_multinasional": 8.77
+        "persen_lingkup_multinasional": 8.77,
+        "is_suppressed": false,
+        "suppress_wt_lt_6": false,
+        "suppress_selaras": false,
+        "suppress_nasional": false,
+        "suppress_multinasional": false
       },
       {
         "id": "TS_PSI_2024",
@@ -13770,7 +12970,12 @@
         "lingkup_nasional": 27,
         "persen_lingkup_nasional": 71.05,
         "lingkup_multinasional": 1,
-        "persen_lingkup_multinasional": 2.63
+        "persen_lingkup_multinasional": 2.63,
+        "is_suppressed": false,
+        "suppress_wt_lt_6": false,
+        "suppress_selaras": false,
+        "suppress_nasional": false,
+        "suppress_multinasional": true
       },
       {
         "id": "TS_KOM_2024",
@@ -13797,7 +13002,12 @@
         "lingkup_nasional": 54,
         "persen_lingkup_nasional": 60.67,
         "lingkup_multinasional": 6,
-        "persen_lingkup_multinasional": 6.74
+        "persen_lingkup_multinasional": 6.74,
+        "is_suppressed": false,
+        "suppress_wt_lt_6": false,
+        "suppress_selaras": false,
+        "suppress_nasional": false,
+        "suppress_multinasional": false
       },
       {
         "id": "TS_DP_2024",
@@ -13824,7 +13034,12 @@
         "lingkup_nasional": 4,
         "persen_lingkup_nasional": 36.36,
         "lingkup_multinasional": 1,
-        "persen_lingkup_multinasional": 9.09
+        "persen_lingkup_multinasional": 9.09,
+        "is_suppressed": false,
+        "suppress_wt_lt_6": false,
+        "suppress_selaras": true,
+        "suppress_nasional": true,
+        "suppress_multinasional": true
       },
       {
         "id": "TS_DKV_2024",
@@ -13851,7 +13066,12 @@
         "lingkup_nasional": 24,
         "persen_lingkup_nasional": 47.06,
         "lingkup_multinasional": 4,
-        "persen_lingkup_multinasional": 7.84
+        "persen_lingkup_multinasional": 7.84,
+        "is_suppressed": false,
+        "suppress_wt_lt_6": false,
+        "suppress_selaras": false,
+        "suppress_nasional": false,
+        "suppress_multinasional": true
       },
       {
         "id": "TS_INF_2024",
@@ -13878,7 +13098,12 @@
         "lingkup_nasional": 25,
         "persen_lingkup_nasional": 75.76,
         "lingkup_multinasional": 4,
-        "persen_lingkup_multinasional": 12.12
+        "persen_lingkup_multinasional": 12.12,
+        "is_suppressed": false,
+        "suppress_wt_lt_6": false,
+        "suppress_selaras": false,
+        "suppress_nasional": false,
+        "suppress_multinasional": true
       },
       {
         "id": "TS_SIF_2024",
@@ -13905,7 +13130,12 @@
         "lingkup_nasional": 24,
         "persen_lingkup_nasional": 43.64,
         "lingkup_multinasional": 10,
-        "persen_lingkup_multinasional": 18.18
+        "persen_lingkup_multinasional": 18.18,
+        "is_suppressed": false,
+        "suppress_wt_lt_6": false,
+        "suppress_selaras": false,
+        "suppress_nasional": false,
+        "suppress_multinasional": false
       },
       {
         "id": "TS_TSP_2024",
@@ -13932,7 +13162,12 @@
         "lingkup_nasional": 16,
         "persen_lingkup_nasional": 53.33,
         "lingkup_multinasional": 4,
-        "persen_lingkup_multinasional": 13.33
+        "persen_lingkup_multinasional": 13.33,
+        "is_suppressed": false,
+        "suppress_wt_lt_6": false,
+        "suppress_selaras": false,
+        "suppress_nasional": false,
+        "suppress_multinasional": true
       },
       {
         "id": "TS_ARS_2024",
@@ -13959,7 +13194,12 @@
         "lingkup_nasional": 14,
         "persen_lingkup_nasional": 63.64,
         "lingkup_multinasional": 2,
-        "persen_lingkup_multinasional": 9.09
+        "persen_lingkup_multinasional": 9.09,
+        "is_suppressed": false,
+        "suppress_wt_lt_6": false,
+        "suppress_selaras": false,
+        "suppress_nasional": false,
+        "suppress_multinasional": true
       }
     ],
     "summaries": [

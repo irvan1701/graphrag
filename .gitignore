@@ -1,1 +1,4 @@
-﻿*.exe
+*.exe
+~$*
+__pycache__/
+*.pyc
