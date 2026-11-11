@@ -4,6 +4,12 @@ import requests
 from flask import Flask, request, jsonify, render_template
 
 try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
+
+try:
     from neo4j import GraphDatabase
 except ImportError:
     GraphDatabase = None
