@@ -2,6 +2,7 @@ import os
 import re
 import json
 import glob
+import time
 import logging
 import argparse
 from datetime import datetime, timezone
@@ -554,7 +555,21 @@ def populate_neo4j(data, uri="bolt://localhost:7687", user="neo4j", password="pa
         
     print(f"Connecting to Neo4j at {uri}...")
     driver = GraphDatabase.driver(uri, auth=(user, password))
-    
+
+    connected = False
+    for attempt in range(1, 21):
+        try:
+            driver.verify_connectivity()
+            connected = True
+            print("Successfully connected to Neo4j!")
+            break
+        except Exception as e:
+            print(f"Waiting for Neo4j to finish booting (attempt {attempt}/20)...")
+            time.sleep(3)
+
+    if not connected:
+        raise RuntimeError(f"Could not connect to Neo4j at {uri} after 60s. Please check 'docker logs neo4j'")
+
     with driver.session() as session:
         print("Creating constraints and indexes...")
         constraints = [
